@@ -3,11 +3,11 @@
 	<classpathentry kind="src" path=""/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="src" path="/org.knime.knip.imagej2.core"/>
 	<classpathentry exported="true" kind="lib" path="/org.knime.knip.ij3dviewer.base/lib/j3dcore.jar"/>
 	<classpathentry exported="true" kind="lib" path="/org.knime.knip.ij3dviewer.base/lib/vecmath.jar"/>
 	<classpathentry exported="true" kind="lib" path="/org.knime.knip.ij3dviewer.base/lib/j3dutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="/org.knime.knip.core/lib/mvn/jama-1.0.2.jar"/>
 	<classpathentry kind="lib" path="libs/imglib.jar"/>
+	<classpathentry exported="true" kind="lib" path="/org.knime.knip.imagej2.core/lib/ij-1.48d.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
