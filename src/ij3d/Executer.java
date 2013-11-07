@@ -519,12 +519,6 @@ public class Executer {
 		gd.addCheckbox("Show_xy plane", vis3);
 		gd.addSlider("z coordinate", 0, d-1, ind3);
 
-		gd.addMessage(  "You can use the x, y and z key plus\n" +
-				"the arrow keys to adjust slices in\n" +
-				"x, y and z direction respectively.\n \n" +
-				"x, y, z + SPACE switches planes on\n" +
-				"and off");
-
 		final int[] dirs = new int[] {VolumeRenderer.X_AXIS,
 				VolumeRenderer.Y_AXIS, VolumeRenderer.Z_AXIS};
 		final Scrollbar[] sl = new Scrollbar[3];
