@@ -107,8 +107,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/** A reference to the universe's shortcuts */
 	private ShortCuts shortcuts;
 
-	private ContextMenu contextmenu;
-
 	/**
 	 * A flag indicating whether the view is adjusted each time a
 	 * Content is added
@@ -167,7 +165,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 		resetView();
 
-		contextmenu = new ContextMenu(this);
 
 		// add mouse listeners
 		canvas.addMouseMotionListener(new MouseMotionAdapter() {
@@ -179,25 +176,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 					IJ.showStatus(c.getName());
 				else
 					IJ.showStatus("");
-			}
-		});
-
-		canvas.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.isConsumed())
-					return;
-				select(picker.getPickedContent(e.getX(), e.getY()));
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				contextmenu.showPopup(e);
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				contextmenu.showPopup(e);
 			}
 		});
 
