@@ -36,14 +36,13 @@ public class TimelineGUI implements ActionListener, KeyListener {
 				"icons/last.png",
 				"icons/nobounceback.png",
 				"icons/play.png",
-				"icons/record.png",
 				"icons/faster.png",
 				"icons/slower.png"};
 
 	private static final String[] COMMANDS = new String[] {
 			"FIRST",
 			"LAST", "NOBOUNCEBACK",
-			"PLAY", "RECORD", "FASTER", "SLOWER"};
+			"PLAY", "FASTER", "SLOWER"};
 
 
 	private JButton[] buttons = new JButton[FILES.length];
@@ -220,8 +219,6 @@ public class TimelineGUI implements ActionListener, KeyListener {
 			buttons[playIndex].setBorder(null);
 			buttons[playIndex].repaint();
 			timeline.pause();
-		} else if(command.equals("RECORD")) {
-			timeline.record().show();
 		} else if(command.equals("FIRST")) {
 			timeline.first();
 		} else if(command.equals("LAST")) {
