@@ -17,14 +17,14 @@ import javax.vecmath.Color3f;
 public class UniverseSettings {
 
 	protected static String getPrefsDir() {
-		String env = System.getenv("IJ_PREFS_DIR");
+		String env = System.getenv("KNIME_IJ3D_PREFS_DIR");
 		if (env != null && !env.equals(""))
                         return env;
 		return System.getProperty("user.home");
 	}
 
 	public static final File propsfile = new File(
-		getPrefsDir(), ".ImageJ_3D_Viewer.props");
+		getPrefsDir(), ".KNIME-IJ3Dviewer.props");
 
 	public static final int PERSPECTIVE = View.PERSPECTIVE_PROJECTION;
 	public static final int PARALLEL  = View.PARALLEL_PROJECTION;
