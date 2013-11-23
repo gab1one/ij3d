@@ -17,9 +17,9 @@ import javax.vecmath.Color3f;
 public class UniverseSettings {
 
 	protected static String getPrefsDir() {
-		String env = System.getenv("KNIME_IJ3D_PREFS_DIR");
-		if (env != null && !env.equals(""))
-                        return env;
+//		String env = System.getenv("KNIME_IJ3D_PREFS_DIR");
+//		if (env != null && !env.equals(""))
+//                        return env;
 		return System.getProperty("user.home");
 	}
 
@@ -58,20 +58,20 @@ public class UniverseSettings {
 	}
 
 	private static void setDefaultShortcuts() {
-		shortcuts.clear();
-		shortcuts.put("File > Open...", getKeyStroke(KeyEvent.VK_O));
-		shortcuts.put("Edit > Delete", "pressed DELETE");
-		shortcuts.put("File > Quit", getKeyStroke(KeyEvent.VK_W));
-		shortcuts.put("Edit > Change transparency", getKeyStroke(KeyEvent.VK_T));
-		shortcuts.put("Edit > Change color", getKeyStroke(KeyEvent.VK_C));
-		shortcuts.put("View > Fullscreen", getKeyStroke(KeyEvent.VK_F));
-		shortcuts.put("View > Reset view", "ctrl pressed H");
-		shortcuts.put("Help > Java 3D Properties", "pressed F1");
+//		shortcuts.clear();
+//		shortcuts.put("File > Open...", getKeyStroke(KeyEvent.VK_O));
+//		shortcuts.put("Edit > Delete", "pressed DELETE");
+//		shortcuts.put("File > Quit", getKeyStroke(KeyEvent.VK_W));
+//		shortcuts.put("Edit > Change transparency", getKeyStroke(KeyEvent.VK_T));
+//		shortcuts.put("Edit > Change color", getKeyStroke(KeyEvent.VK_C));
+//		shortcuts.put("View > Fullscreen", getKeyStroke(KeyEvent.VK_F));
+//		shortcuts.put("View > Reset view", "ctrl pressed H");
+//		shortcuts.put("Help > Java 3D Properties", "pressed F1");
 	}
 
-	private static String getKeyStroke(int kc) {
-		return KeyStroke.getKeyStroke(kc, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()).toString();
-	}
+//	private static String getKeyStroke(int kc) {
+//		return KeyStroke.getKeyStroke(kc, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()).toString();
+//	}
 
 	public static void load() {
 		try {
