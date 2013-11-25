@@ -37,7 +37,7 @@ public class UniverseSettings {
 	public static boolean showScalebar                         = false;
 	public static boolean showSelectionBox                     = true;
 	public static Color3f defaultBackground                    = new Color3f();
-	public static final HashMap<String, String> shortcuts      = new HashMap<String, String>();
+//	public static final HashMap<String, String> shortcuts      = new HashMap<String, String>();
 
 	public static void save() {
 		Properties properties = new Properties();
@@ -48,8 +48,8 @@ public class UniverseSettings {
 		properties.put("Show_Local_Coordinate_System_When_Adding_Content", str(showLocalCoordinateSystemsByDefault));
 		properties.put("Show_Scalebar", str(showScalebar));
 		properties.put("Background", str(defaultBackground));
-		for(String key : shortcuts.keySet())
-			properties.put("shortcut." + key, shortcuts.get(key));
+//		for(String key : shortcuts.keySet())
+//			properties.put("shortcut." + key, shortcuts.get(key));
 		try {
 			properties.store(new FileOutputStream(propsfile), "ImageJ 3D Viewer properties");
 		} catch(Exception e) {
@@ -57,7 +57,7 @@ public class UniverseSettings {
 		}
 	}
 
-	private static void setDefaultShortcuts() {
+//	private static void setDefaultShortcuts() {
 //		shortcuts.clear();
 //		shortcuts.put("File > Open...", getKeyStroke(KeyEvent.VK_O));
 //		shortcuts.put("Edit > Delete", "pressed DELETE");
@@ -67,7 +67,7 @@ public class UniverseSettings {
 //		shortcuts.put("View > Fullscreen", getKeyStroke(KeyEvent.VK_F));
 //		shortcuts.put("View > Reset view", "ctrl pressed H");
 //		shortcuts.put("Help > Java 3D Properties", "pressed F1");
-	}
+//	}
 
 //	private static String getKeyStroke(int kc) {
 //		return KeyStroke.getKeyStroke(kc, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()).toString();
@@ -84,17 +84,17 @@ public class UniverseSettings {
 			showLocalCoordinateSystemsByDefault = bool(properties.getProperty("Show_Local_Coordinate_System_When_Adding_Content", str(showLocalCoordinateSystemsByDefault)));
 			showScalebar = bool(properties.getProperty("Show_Scalebar", str(showScalebar)));
 			defaultBackground = col(properties.getProperty("Background", str(defaultBackground)));
-			shortcuts.clear();
-			for(Object o : properties.keySet()) {
-				String key = (String)o;
-				if(key.startsWith("shortcut.")) {
-					key = key.substring(".shortcut".length());
-					String v = properties.getProperty((String)o);
-					shortcuts.put(key, v);
-				}
-			}
-			if(shortcuts.isEmpty())
-				setDefaultShortcuts();
+//			shortcuts.clear();
+//			for(Object o : properties.keySet()) {
+//				String key = (String)o;
+//				if(key.startsWith("shortcut.")) {
+//					key = key.substring(".shortcut".length());
+//					String v = properties.getProperty((String)o);
+//					shortcuts.put(key, v);
+//				}
+//			}
+//			if(shortcuts.isEmpty())
+////				setDefaultShortcuts();
 		} catch(Exception e) {
 			System.err.println(e.getMessage());
 		}

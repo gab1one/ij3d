@@ -1,6 +1,5 @@
 package view4d;
 
-import ij.gui.GenericDialog;
 
 import javax.swing.*;
 import java.awt.*;

@@ -643,8 +643,6 @@ public class Image3DMenubar extends JMenuBar implements ActionListener,
 			executer.adjustLight();
 		else if (src == viewPreferences)
 			executer.viewPreferences();
-		else if (src == shortcuts)
-			executer.editShortcuts();
 		else if(src == j3dproperties)
 			executer.j3dproperties();
 		else if (viewposXY == src)
