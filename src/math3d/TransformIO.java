@@ -1,27 +1,23 @@
 package math3d;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedHashMap;
-
-import nrrd.NrrdHeader;
 import ij.IJ;
 import ij.io.OpenDialog;
 import ij.io.SaveDialog;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.Date;
+
+import nrrd.NrrdHeader;
+
 /**
- * 
+ *
  */
 
 /**
@@ -34,21 +30,21 @@ import ij.io.SaveDialog;
  *
  */
 public class TransformIO {
-	
-	// Determines whether the transformations that are 
+
+	// Determines whether the transformations that are
 	// supplied are normalised before being returned
 	// Should probably happen elsewhere though
 	public boolean normaliseScaleFactors=false;
-	
+
 	public static final int matRows=4;
 	public static final int matCols=4;
 	public static final int matSize=matRows*matCols;
-	
+
 	NrrdHeader nh;
-	
+
 	String getTags() { return nh==null?null:nh.getTagStrings(); }
-	String getFields() {return nh==null?null:nh.getFieldStrings();}	
-	String getHeader() {return nh==null?null:nh.toString();}	
+	String getFields() {return nh==null?null:nh.getFieldStrings();}
+	String getHeader() {return nh==null?null:nh.toString();}
 
 	float[] openAffineTransform(String path) {
 		nh=new NrrdHeader();
@@ -63,7 +59,7 @@ public class TransformIO {
 				if(s.startsWith("#"))
 					continue;
 				String[] floatStrings = s.split("\\s+");
-            	if(floatStrings.length!=4) throw new 
+            	if(floatStrings.length!=4) throw new
             		Exception("Could not read 4 floats from line "+in.getLineNumber()+" (" + s + ") of file "+path);
 				for(int i=0;i<floatStrings.length;i++){
                     	mat[nLines*matCols+i]=s2f(floatStrings[i]);
@@ -73,10 +69,10 @@ public class TransformIO {
 		} catch (Exception e){
 			IJ.error("Unable to read affine transfomation from file: "+path+"\n"+e);
 		}
-		
+
 		return mat;
 	}
-	
+
 	public float[] openAffineTransform(){
 		OpenDialog od = new OpenDialog("Open Affine Transformation...", "");
 		String directory = od.getDirectory();
@@ -85,14 +81,14 @@ public class TransformIO {
 			return null;
 		return openAffineTransform((new File(directory,fileName)).getPath());
 	}
-	
+
 	public boolean saveAffineTransform(String path, float[] mat){
 		File f = new File(path);
 		//if (!f.canWrite()) return false;
 		if (mat.length!=matSize) return false;
-		
+
 		//SimpleDateFormat regDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
-		
+
 		try {
 			Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(f)));
 			out.write("# Simple Affine Transformation written by Transform_IO\n");
@@ -109,7 +105,7 @@ public class TransformIO {
 		}
 		return true;
 	}
-	
+
 	public String toString(float[]  mat){
 		StringBuffer sb=new StringBuffer();
 		for(int i=0;i<matRows;i++){
@@ -117,7 +113,7 @@ public class TransformIO {
 		}
 		return sb.toString();
 	}
-	
+
 	public boolean saveAffineTransform(float[] mat){
 		SaveDialog sd = new SaveDialog("Save Affine Transformation ...", "", ".mat");
 		String file = sd.getFileName();
@@ -125,7 +121,7 @@ public class TransformIO {
 		String directory = sd.getDirectory();
 		return saveAffineTransform((new File(directory,file)).getPath(), mat);
 	}
-	
+
 	// Converts a string to a float. Returns NAN if the string does not contain a valid number. */
 	float s2f(String s) {
 		Float f = null;

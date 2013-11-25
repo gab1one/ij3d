@@ -1,6 +1,5 @@
 package octree;
 
-import java.awt.image.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
 import ij3d.AxisConstants;

@@ -1,6 +1,5 @@
 package ij3d.behaviors;
 
-import ij3d.UniverseSettings;
 import ij3d.DefaultUniverse;
 import ij3d.Image3DUniverse;
 import ij3d.ImageCanvas3D;

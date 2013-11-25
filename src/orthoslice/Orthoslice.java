@@ -1,11 +1,7 @@
 package orthoslice;
 
-import java.awt.*;
-import java.awt.image.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
-import java.io.*;
-import com.sun.j3d.utils.behaviors.mouse.*;
 import ij.ImagePlus;
 import java.util.BitSet;
 

@@ -3,8 +3,6 @@ package ij3d.behaviors;
 import com.sun.j3d.utils.pickfast.PickCanvas;
 import com.sun.j3d.utils.pickfast.PickTool;
 import ij.IJ;
-import ij.ImagePlus;
-import ij.measure.Calibration;
 import ij3d.Volume;
 import ij3d.Content;
 import ij3d.DefaultUniverse;

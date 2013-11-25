@@ -11,14 +11,12 @@ import javax.media.j3d.Geometry;
 import javax.media.j3d.OrientedShape3D;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.Switch;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.Text3D;
 import javax.media.j3d.Font3D;
 import javax.media.j3d.FontExtrusion;
 import javax.media.j3d.Appearance;
-import javax.media.j3d.Material;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.ColoringAttributes;
 

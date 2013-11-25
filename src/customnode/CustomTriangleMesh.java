@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 import java.awt.Polygon;
 
-import javax.media.j3d.Geometry;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.TriangleArray;
 import javax.media.j3d.Transform3D;
@@ -19,8 +18,6 @@ import javax.vecmath.Point3f;
 
 import com.sun.j3d.utils.geometry.GeometryInfo;
 import com.sun.j3d.utils.geometry.NormalGenerator;
-import com.sun.j3d.utils.geometry.Stripifier;
-
 import java.util.ArrayList;
 
 

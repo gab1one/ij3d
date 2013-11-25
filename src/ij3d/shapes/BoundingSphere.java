@@ -1,8 +1,6 @@
 package ij3d.shapes;
 
-import com.sun.j3d.utils.universe.*;
 import com.sun.j3d.utils.geometry.*;
-import com.sun.j3d.utils.behaviors.mouse.*;
 import javax.media.j3d.*;
 import javax.vecmath.*;
 

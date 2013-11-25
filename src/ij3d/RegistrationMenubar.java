@@ -1,18 +1,12 @@
 package ij3d;
 
 import ij.gui.GenericDialog;
-import ij.gui.MultiLineLabel;
 import ij.IJ;
-import ij.WindowManager;
-import ij.ImagePlus;
-import ij.text.TextWindow;
-
 import java.text.DecimalFormat;
 
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
-import java.util.Vector;
 import java.util.Iterator;
 import java.util.Collection;
 import java.util.List;
@@ -22,18 +16,8 @@ import vib.PointList;
 import vib.BenesNamedPoint;
 import vib.FastMatrix;
 
-import orthoslice.OrthoGroup;
-import voltex.VoltexGroup;
-import isosurface.MeshGroup;
-import isosurface.MeshExporter;
-import isosurface.MeshEditor;
-
-import javax.vecmath.Color3f;
 import javax.media.j3d.View;
 import javax.media.j3d.Transform3D;
-
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.Collection;
 
 public class RegistrationMenubar extends JMenuBar implements ActionListener,
 							UniverseListener {

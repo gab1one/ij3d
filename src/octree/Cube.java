@@ -2,7 +2,6 @@ package octree;
 
 import java.io.File;
 
-import java.util.Arrays;
 import java.util.List;
 import javax.media.j3d.Canvas3D;
 import javax.media.j3d.Transform3D;

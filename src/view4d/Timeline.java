@@ -1,8 +1,6 @@
 package view4d;
 
 import ij3d.Image3DUniverse;
-import ij.ImagePlus;
-import ij.ImageStack;
 
 /**
  * Implements the functionality for the 4D viewer, like loading and animation.

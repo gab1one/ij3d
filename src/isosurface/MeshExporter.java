@@ -12,8 +12,6 @@ import customnode.CustomMesh;
 import customnode.CustomMultiMesh;
 
 import ij.IJ;
-import ij.io.SaveDialog;
-
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.BufferedOutputStream;
@@ -27,7 +25,6 @@ import java.nio.ByteOrder;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;

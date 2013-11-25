@@ -1,7 +1,6 @@
 package ij3d;
 
 import ij.io.SaveDialog;
-import ij.io.FileSaver;
 import ij.io.FileInfo;
 import ij.gui.GenericDialog;
 import ij.IJ;
@@ -20,10 +19,7 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;

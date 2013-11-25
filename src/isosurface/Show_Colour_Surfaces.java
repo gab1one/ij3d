@@ -33,16 +33,11 @@ import ij.ImageStack;
 import ij.process.*;
 import ij.gui.*;
 import ij.plugin.*;
-import ij.plugin.filter.*;
-import ij.text.*;
 import ij.measure.Calibration;
-import ij.io.*;
-
 import ij3d.Image3DUniverse;
 import ij3d.Content;
 import javax.vecmath.Color3f;
 
-import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 
 import java.util.HashMap;

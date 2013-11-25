@@ -2,16 +2,12 @@ package ij3d;
 
 import ij.gui.GenericDialog;
 
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.HashMap;
 import java.util.Properties;
 
 import javax.media.j3d.View;
-import javax.swing.KeyStroke;
 import javax.vecmath.Color3f;
 
 public class UniverseSettings {

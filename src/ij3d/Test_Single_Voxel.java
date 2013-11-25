@@ -4,17 +4,9 @@ package ij3d;
 
 import ij.*;
 import ij.process.*;
-import ij.gui.*;
 import ij.plugin.*;
-import ij.plugin.filter.*;
-import ij.text.*;
-import ij.measure.Calibration;
-import ij.io.*;
-
 import ij3d.Image3DUniverse;
-import ij3d.Image3DMenubar;
 import ij3d.Content;
-import ij3d.Pipe;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3f;
 import ij.gui.GUI;

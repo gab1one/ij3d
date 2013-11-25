@@ -1,8 +1,6 @@
 package ij3d.gui;
 
-import ij.util.Java2;
 import ij.gui.GenericDialog;
-import ij.io.OpenDialog;
 import ij.IJ;
 import ij.WindowManager;
 import ij.ImagePlus;
@@ -12,8 +10,6 @@ import ij3d.ContentCreator;
 import ij3d.Image3DUniverse;
 import ij3d.ColorTable;
 
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.*;
 import java.awt.event.*;
 import java.awt.*;
 

@@ -4,7 +4,6 @@ import ij.IJ;
 import ij.ImagePlus;
 import ij3d.pointlist.PointListDialog;
 
-import java.awt.BorderLayout;
 import java.awt.CheckboxMenuItem;
 import java.awt.GraphicsDevice;
 import java.awt.Menu;
