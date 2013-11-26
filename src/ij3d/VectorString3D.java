@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 In addition, as a special exception, the copyright holders give
 you permission to combine this program with free software programs or
-libraries that are released under the Apache Public License. 
+libraries that are released under the Apache Public License.
 
 You may contact Albert Cardona at acardona at ini.phys.ethz.ch
 Institute of Neuroinformatics, University of Zurich / ETH, Switzerland.
@@ -30,7 +30,6 @@ Institute of Neuroinformatics, University of Zurich / ETH, Switzerland.
 
 package ij3d;
 
-import Jama.Matrix;
 
 // A mini version of VectorString3D taken from ini.trakem2.vector.VectorString3D:
 class VectorString3D {
@@ -137,13 +136,13 @@ class VectorString3D {
 			this.ry[i] = yval;
 			this.rz[i] = zval;
 		}
-		/** Arrays are enlarged if necessary.*/
-		final void setV(final int i, final double xval, final double yval, final double zval) {
-			if (i >= rx.length) resize(i+10);
-			this.vx[i] = xval;
-			this.vy[i] = yval;
-			this.vz[i] = zval;
-		}
+//		/** Arrays are enlarged if necessary.*/
+//		final void setV(final int i, final double xval, final double yval, final double zval) {
+//			if (i >= rx.length) resize(i+10);
+//			this.vx[i] = xval;
+//			this.vy[i] = yval;
+//			this.vz[i] = zval;
+//		}
 		/** Arrays are enlarged if necessary.*/
 		final void setPV(final int i, final double rxval, final double ryval, final double rzval, final double xval, final double yval, final double zval) {
 			if (i >= rx.length) resize(i+10);
@@ -207,9 +206,9 @@ class VectorString3D {
 		private double length;
 		// 0 coords and 0 length, virtue of the 'calloc'
 		Vector() {}
-		Vector(final double x, final double y, final double z) {
-			set(x, y, z);
-		}
+//		Vector(final double x, final double y, final double z) {
+//			set(x, y, z);
+//		}
 		Vector(final Vector v) {
 			this.x = v.x;
 			this.y = v.y;
@@ -259,74 +258,75 @@ class VectorString3D {
 		final void put(final int i, final ResamplingData r) {
 			r.setPV(i, r.x(i-1) + this.x, r.y(i-1) + this.y, r.z(i-1) + this.z, this.x, this.y, this.z);
 		}
-		/** As row. */
-		final void put(final double[] d) {
-			d[0] = x;
-			d[1] = y;
-			d[2] = z;
-		}
-		/** As column. */
-		final void put(final double[][] d, final int col) {
-			d[0][col] = x;
-			d[1][col] = y;
-			d[2][col] = z;
-		}
-		final void put(final int i, final double[] x, final double[] y, final double[] z) {
-			x[i] = this.x;
-			y[i] = this.y;
-			z[i] = this.z;
-		}
-		final Vector getCrossProduct(final Vector v) {
-			// (a1; a2; a3) x (b1; b2; b3) = (a2b3 - a3b2; a3b1 - a1b3; a1b2 - a2b1)
-			return new Vector(y * v.z - z * v.y,
-					  z * v.x - x * v.z,
-					  x * v.y - y * v.x);
-		}
-		final void setCrossProduct(final Vector v, final Vector w) {
-			this.x = v.y * w.z - v.z * w.y;
-			this.y = v.z * w.x - v.x * w.z;
-			this.z = v.x * w.y - v.y * w.x;
-		}
+//		/** As row. */
+//		final void put(final double[] d) {
+//			d[0] = x;
+//			d[1] = y;
+//			d[2] = z;
+//		}
+//		/** As column. */
+//		final void put(final double[][] d, final int col) {
+//			d[0][col] = x;
+//			d[1][col] = y;
+//			d[2][col] = z;
+//		}
+//		final void put(final int i, final double[] x, final double[] y, final double[] z) {
+//			x[i] = this.x;
+//			y[i] = this.y;
+//			z[i] = this.z;
+//		}
+//		final Vector getCrossProduct(final Vector v) {
+//			// (a1; a2; a3) x (b1; b2; b3) = (a2b3 - a3b2; a3b1 - a1b3; a1b2 - a2b1)
+//			return new Vector(y * v.z - z * v.y,
+//					  z * v.x - x * v.z,
+//					  x * v.y - y * v.x);
+//		}
+//		final void setCrossProduct(final Vector v, final Vector w) {
+//			this.x = v.y * w.z - v.z * w.y;
+//			this.y = v.z * w.x - v.x * w.z;
+//			this.z = v.x * w.y - v.y * w.x;
+//		}
 		/** Change coordinate system. */
-		final void changeRef(final Vector v_delta, final Vector v_i1, final Vector v_new1) { // this vector works like new2
-			// ortogonal system 1: the target
-			// (a1'; a2'; a3')
-			Vector a2 = new Vector(  v_new1   );  // vL
-			a2.normalize();
-			Vector a1 = a2.getCrossProduct(v_i1); // vQ
-			a1.normalize();
-			Vector a3 = a2.getCrossProduct(a1);
-			// no need //a3.normalize();
-
-			final double[][] m1 = new double[3][3];
-			a1.put(m1, 0);
-			a2.put(m1, 1);
-			a3.put(m1, 2);
-			final Matrix mat1 = new Matrix(m1);
-
-			// ortogonal system 2: the current
-			// (a1'; b2'; b3')
-			Vector b2 = new Vector(  v_delta  ); // vA
-			b2.normalize();
-			Vector b3 = a1.getCrossProduct(b2); // vQ2
-
-			final double[][] m2 = new double[3][3];
-			a1.put(m2, 0);
-			b2.put(m2, 1);
-			b3.put(m2, 2);
-			final Matrix mat2 = new Matrix(m2).transpose();
-
-			final Matrix R = mat1.times(mat2);
-			final Matrix mthis = new Matrix(new double[]{this.x, this.y, this.z}, 1);
-			// The rotated vector as a one-dim matrix
-			// (i.e. the rescued difference vector as a one-dimensional matrix)
-			final Matrix v_rot = R.transpose().times(mthis.transpose()); // 3x3 times 3x1, hence the transposing of the 1x3
-			final double[][] arr = v_rot.getArray();
-			// done!
-			this.x = arr[0][0];
-			this.y = arr[1][0];
-			this.z = arr[2][0];
-		}
+//		final void changeRef(final Vector v_delta, final Vector v_i1, final Vector v_new1) { // this vector works like new2
+//			// ortogonal system 1: the target
+//			// (a1'; a2'; a3')
+//			Vector a2 = new Vector(  v_new1   );  // vL
+//			a2.normalize();
+//			Vector a1 = a2.getCrossProduct(v_i1); // vQ
+//			a1.normalize();
+//			Vector a3 = a2.getCrossProduct(a1);
+//			// no need //a3.normalize();
+//
+//			final double[][] m1 = new double[3][3];
+//			a1.put(m1, 0);
+//			a2.put(m1, 1);
+//			a3.put(m1, 2);
+//			final Matrix mat1 = new Matrix(m1);
+//
+//			// ortogonal system 2: the current
+//			// (a1'; b2'; b3')
+//			Vector b2 = new Vector(  v_delta  ); // vA
+//			b2.normalize();
+//			Vector b3 = a1.getCrossProduct(b2); // vQ2
+//
+//			final double[][] m2 = new double[3][3];
+//			a1.put(m2, 0);
+//			b2.put(m2, 1);
+//			b3.put(m2, 2);
+//			final Matrix mat2 = new Matrix(m2).transpose();
+//
+//			final Matrix R = mat1.times(mat2);
+//			final Matrix mthis = new Matrix(new double[]{this.x, this.y, this.z}, 1);
+//			// The rotated vector as a one-dim matrix
+//			// (i.e. the rescued difference vector as a one-dimensional matrix)
+//			final Matrix v_rot = R.transpose().times(mthis.transpose()); // 3x3 times 3x1, hence the transposing of the 1x3
+//			final double[][] arr = v_rot.getArray();
+//			// done!
+//			this.x = arr[0][0];
+//			this.y = arr[1][0];
+//			this.z = arr[2][0];
+//		}
+//	}
 	}
 
 	private final void recalculate(final double[] w, final int length, final double sum_) {
