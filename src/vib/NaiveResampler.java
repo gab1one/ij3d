@@ -2,9 +2,9 @@
 
 package vib;
 
-import amira.AmiraParameters;
-
-import ij.*;
+import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 import ij.measure.Calibration;
 
 /* This plugin takes a binned image as input. It then reassigns equally spaced
@@ -42,7 +42,7 @@ public class NaiveResampler {
 		}
 
 		public int get() {
-			return (int)(((cumulR / count) << 16) 
+			return (int)(((cumulR / count) << 16)
 				+ ((cumulG / count) << 8)
 				+ cumulB / count);
 		}
@@ -120,7 +120,7 @@ public class NaiveResampler {
 		}
 
 		int currentValue = -1;
-		
+
 		public void reset() {
 			currentValue = -1;
 		}
@@ -137,7 +137,7 @@ public class NaiveResampler {
 		}
 	}
 
-	public static ImagePlus resample(ImagePlus image, int factorX, 
+	public static ImagePlus resample(ImagePlus image, int factorX,
 					int factorY, int factorZ) {
 		Accumulator accu = null;
 		int type = image.getType();
@@ -157,8 +157,8 @@ public class NaiveResampler {
 	public static ImagePlus resample(ImagePlus image, int factor){
 		return resample(image, factor, factor, factor);
 	}
-	
-	public static ImagePlus resampleMinEnt(ImagePlus image, int factorX, 
+
+	public static ImagePlus resampleMinEnt(ImagePlus image, int factorX,
 					int factorY, int factorZ) {
 		return resample(image, factorX, factorY, factorZ,new MinEntropy(image));
 	}
@@ -246,18 +246,14 @@ public class NaiveResampler {
 			if(type==ImagePlus.GRAY8||type==ImagePlus.COLOR_256)
 				result.addSlice(null,newSlice);
 			else if(type==ImagePlus.GRAY16)
-				result.addSlice(null,newSliceShort);				
+				result.addSlice(null,newSliceShort);
 			else if(type==ImagePlus.COLOR_RGB)
 				result.addSlice(null,newSliceInt);
-			
+
 		}
 
 		ImagePlus res = new ImagePlus(image.getTitle()+" resampled",
 				result);
-		if (AmiraParameters.isAmiraMesh(image)) {
-			AmiraParameters p = new AmiraParameters(image);
-			p.setParameters(res);
-		}
 
 		Calibration cal = image.getCalibration().copy();
 		cal.pixelWidth *= image.getWidth() / (double)res.getWidth();

@@ -13,7 +13,6 @@ Bundle-ClassPath: lib/ij-1.48d.jar,
  lib/vecmath.jar,
  lib/imglib.jar
 Export-Package: .,
- amira,
  com.sun.j3d.audioengines,
  com.sun.j3d.audioengines.javasound,
  com.sun.j3d.exp.swing,
