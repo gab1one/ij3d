@@ -30,7 +30,6 @@ public class UniverseSettings {
 	public static boolean showScalebar                         = false;
 	public static boolean showSelectionBox                     = true;
 	public static Color3f defaultBackground                    = new Color3f();
-//	public static final HashMap<String, String> shortcuts      = new HashMap<String, String>();
 
 	public static void save() {
 		Properties properties = new Properties();
@@ -41,15 +40,12 @@ public class UniverseSettings {
 		properties.put("Show_Local_Coordinate_System_When_Adding_Content", str(showLocalCoordinateSystemsByDefault));
 		properties.put("Show_Scalebar", str(showScalebar));
 		properties.put("Background", str(defaultBackground));
-//		for(String key : shortcuts.keySet())
-//			properties.put("shortcut." + key, shortcuts.get(key));
 		try {
 			properties.store(new FileOutputStream(propsfile), "ImageJ 3D Viewer properties");
 		} catch(Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}
-
 
 	public static void load() {
 		try {
