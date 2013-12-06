@@ -1,7 +1,7 @@
 package customnode;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.QuadArray;

@@ -136,7 +136,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Constructs a new universe with the specified width and height.
-	 * 
+	 *
 	 * @param width
 	 * @param height
 	 */
@@ -154,16 +154,16 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 		resetView();
 
 		// add mouse listeners
-		canvas.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
-			public void mouseMoved(MouseEvent e) {
-				Content c = picker.getPickedContent(e.getX(), e.getY());
-				if (c != null)
-					IJ.showStatus(c.getName());
-				else
-					IJ.showStatus("");
-			}
-		});
+//		canvas.addMouseMotionListener(new MouseMotionAdapter() {
+//			@Override
+//			public void mouseMoved(MouseEvent e) {
+//				Content c = picker.getPickedContent(e.getX(), e.getY());
+//				if (c != null)
+//					IJ.showStatus(c.getName());
+//				else
+//					IJ.showStatus("");
+//			}
+//		});
 
 		universes.add(this);
 	}
@@ -180,26 +180,26 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * It is assumed that the
-	 * 
+	 *
 	 * @param window
 	 *            already displays the {@link Canvas3D} as obtained from calling
 	 *            {@link Image3DUniverse#getCanvas()}. If the
 	 *            {@link DefaultUniverse} obtained from
 	 *            {@link ImageWindow3D#getUniverse()} is not exactly this
 	 *            universe, a {@link RuntimeException} is thrown.
-	 * 
+	 *
 	 *            This method acts as an initialization of the ImageWindow3D, by
 	 *            adding the menubar to it as well as initializing the
 	 *            {@link PointListDialog} and adding a {@link WindowAdapter} to
 	 *            the
 	 * @param window
 	 *            that does cleanup.
-	 * 
+	 *
 	 *            The
 	 * @param window
 	 *            is not shown, that is, {@link ImageWindow3D#pack()} and
 	 *            {@link ImageWindow3D#setVisible()} are not called.
-	 * 
+	 *
 	 */
 	public void init(ImageWindow3D window) {
 		if (window.getUniverse() != this) {
@@ -299,7 +299,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Shows the specified status string at the bottom of the viewer window.
-	 * 
+	 *
 	 * @param text
 	 */
 	public void setStatus(String text) {
@@ -309,7 +309,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Set a custom menu bar to the viewer.
-	 * 
+	 *
 	 * @deprecated Use swing instead.
 	 */
 	@Deprecated
@@ -353,7 +353,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Set a custom menu bar to the viewer
-	 * 
+	 *
 	 * @param mb
 	 */
 	public void setMenubar(JMenuBar mb) {
@@ -363,7 +363,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Set a custoum TimelineGui
-	 * 
+	 *
 	 * @param tlgui
 	 */
 	public void setTimelineGui(TimelineGUI tlgui) {
@@ -372,7 +372,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Returns a reference to the menu bar used by this universe.
-	 * 
+	 *
 	 * @return
 	 */
 	public JMenuBar getMenuBar() {
@@ -388,7 +388,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Returns a reference to the Executer used by this universe.
-	 * 
+	 *
 	 * @return
 	 */
 	public Executer getExecuter() {
@@ -508,7 +508,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * Select the specified Content. If another Content is already selected, it
 	 * will be deselected. fireContentSelected() is thrown.
-	 * 
+	 *
 	 * @param c
 	 */
 	public void select(Content c) {
@@ -628,7 +628,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * minimum, maximum and center point are set accordingly to this Content. If
 	 * not, the extrema of the specified Content are compared with the current
 	 * global extrema, and these are set accordingly.
-	 * 
+	 *
 	 * @param c
 	 */
 	public void recalculateGlobalMinMax(Content c) {
@@ -668,7 +668,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Copies the global center point into the specified Point3d.
-	 * 
+	 *
 	 * @param p
 	 */
 	public void getGlobalCenterPoint(Point3d p) {
@@ -677,7 +677,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Copies the global minimum point into the specified Point3d.
-	 * 
+	 *
 	 * @param p
 	 */
 	public void getGlobalMinPoint(Point3d p) {
@@ -686,7 +686,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Copies the global maximum point into the specified Point3d.
-	 * 
+	 *
 	 * @param p
 	 */
 	public void getGlobalMaxPoint(Point3d p) {
@@ -819,7 +819,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * type is one of the constants defined in Content, e.g. VOLUME, SURFACE
 	 * etc. For meaning about color, threshold, channels, ... see the
 	 * documentation for Content.
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param color
@@ -860,7 +860,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Content.getDefaultTreshold()
 	 * <li>channels: all color channels r, g, b
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param type
@@ -888,7 +888,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * <li>resampling factor: the default resampling factor, as returned by
 	 * Content.getDefaultResamplingFactor()</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param type
@@ -914,7 +914,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * <li>resampling factor: the default resampling factor, as returned by
 	 * Content.getDefaultResamplingFactor()</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -933,7 +933,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Content.getDefaultTreshold()
 	 * <li>channels: all color channels r, g, b
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -946,7 +946,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a new image as a content, displaying it as a volume rendering. For
 	 * the meaning of color, threshold, channels, resampling factor etc see the
 	 * documentation of Content.
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param color
@@ -980,7 +980,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * <li>resampling factor: the default resampling factor, as returned by
 	 * Content.getDefaultResamplingFactor()</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -999,7 +999,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Content.getDefaultTreshold()
 	 * <li>channels: all color channels r, g, b
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -1012,7 +1012,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a new image as a content, displaying it as orthoslices. For the
 	 * meaning of color, threshold, channels, resampling factor etc see the
 	 * documentation of Content.
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param color
@@ -1046,7 +1046,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * <li>resampling factor: the default resampling factor, as returned by
 	 * Content.getDefaultResamplingFactor()</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -1065,7 +1065,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Content.getDefaultTreshold()
 	 * <li>channels: all color channels r, g, b
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -1078,7 +1078,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a new image as a content, displaying it as a 2D surface plot. For the
 	 * meaning of color, threshold, channels, resampling factor etc see the
 	 * documentation of Content.
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param color
@@ -1112,7 +1112,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * <li>resampling factor: the default resampling factor, as returned by
 	 * Content.getDefaultResamplingFactor()</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -1131,7 +1131,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Content.getDefaultTreshold()
 	 * <li>channels: all color channels r, g, b
 	 * </ul>
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
@@ -1144,7 +1144,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a new image as a content, displaying it as an iso-surface. For the
 	 * meaning of color, threshold, channels, resampling factor etc see the
 	 * documentation of Content.
-	 * 
+	 *
 	 * @param image
 	 *            the image to display
 	 * @param color
@@ -1169,10 +1169,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Add a custom mesh to the universe.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            the CustomMesh to display
 	 * @param name
@@ -1190,10 +1190,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Add a CustomMultiMesh to the universe.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            the CustomMultiMesh to display
 	 * @param name
@@ -1211,11 +1211,11 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Create a Content object from the mesh.
-	 * 
+	 *
 	 * Does not add the Content to the view; it merely creates it with all the
 	 * appropriate default parameters. Does not check if the view already
 	 * contains a Content object with the same name, which is not allowed.
-	 * 
+	 *
 	 * @param mesh
 	 *            the CustomMesh to display
 	 * @param name
@@ -1234,7 +1234,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a custom mesh, in particular a line mesh (a set of lines in 3D) to
 	 * the universe. For the line parameters, default values are used: The width
 	 * of the line is 1.0 and the pattern is solid.
-	 * 
+	 *
 	 * There exist two styles of line meshes:
 	 * <ul>
 	 * <li>a normal line mesh. In this case, the specified strips flag should be
@@ -1246,10 +1246,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * i.e.the 1st point is connected to the 2nd, the 2nd to the 2rd, the 3rd to
 	 * the 4th, and so on.</li>
 	 * </ul>
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            a list of points which make up the mesh
 	 * @param color
@@ -1271,10 +1271,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * Add a custom mesh, in particular a point mesh, to the universe. For the
 	 * size of the points, a default value is used which is 1.0.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            a list of points which make up the mesh.
 	 * @param color
@@ -1290,10 +1290,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Add a custom mesh, in particular a point mesh, to the universe.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            a list of points which make up the mesh.
 	 * @param color
@@ -1314,7 +1314,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * At every {@link Point3f} in @param points, place an icosphere created
 	 * with @param subdivisions and @param radius.
-	 * 
+	 *
 	 * A reasonable @param subdivision value is 2. Higher values will result in
 	 * excessively detailed and very large meshes.
 	 */
@@ -1334,10 +1334,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a custom mesh, in particular a mesh consisting of quads, to the
 	 * universe. The number of points in the specified list must be devidable by
 	 * 4. 4 consecutive points represent one quad.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            a list of points which make up the mesh.
 	 * @param color
@@ -1353,10 +1353,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Add a custom mesh, in particular a triangle mesh, to the universe.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            a list of points which make up the mesh. The number of points
 	 *            must be devidable by 3. 3 successive points make up one
@@ -1377,10 +1377,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add a custom mesh, in particular a triangle mesh, to the universe. With
 	 * this method, the color of each vertex may be set to produce multi-colored
 	 * meshes.
-	 * 
+	 *
 	 * For more details on custom meshes, read the package API docs of the
 	 * package customnode.
-	 * 
+	 *
 	 * @param mesh
 	 *            a list of points which make up the mesh. The number of points
 	 *            must be devidable by 3. 3 successive points make up one
@@ -1434,7 +1434,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Remove the Content with the specified name from the universe.
-	 * 
+	 *
 	 * @param name
 	 */
 	public void removeContent(String name) {
@@ -1468,7 +1468,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * Returns a Collection containing the references to all the contents of
 	 * this universe.
-	 * 
+	 *
 	 * @return
 	 */
 	public Collection getContents() {
@@ -1480,7 +1480,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * Returns true if a Content with the specified name is present in this
 	 * universe.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -1491,7 +1491,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * Returns the Content with the specified name. Null if no Content with the
 	 * specified name is present.
-	 * 
+	 *
 	 * @param name
 	 * @return
 	 */
@@ -1558,7 +1558,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	/**
 	 * Rotate the universe, using the given axis of rotation and angle; The
 	 * center of rotation is the global center.
-	 * 
+	 *
 	 * @param axis
 	 *            The axis of rotation (in the image plate coordinate system)
 	 * @param angle
@@ -1663,7 +1663,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Fit all contents optimally into the canvas.
-	 * 
+	 *
 	 * @param dir
 	 *            One of ViewAdjuster.ADJUST_HORIZONTAL,
 	 *            ViewAdjuster.ADJUST_VERTICAL or ViewAdjuster.ADJUST_BOTH
@@ -1685,7 +1685,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Fit the specified contents optimally into the canvas.
-	 * 
+	 *
 	 * @param dir
 	 *            One of ViewAdjuster.ADJUST_HORIZONTAL,
 	 *            ViewAdjuster.ADJUST_VERTICAL or ViewAdjuster.ADJUST_BOTH
@@ -1700,7 +1700,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 
 	/**
 	 * Fit the specified content optimally into the canvas.
-	 * 
+	 *
 	 * @param dir
 	 *            One of ViewAdjuster.ADJUST_HORIZONTAL,
 	 *            ViewAdjuster.ADJUST_VERTICAL or ViewAdjuster.ADJUST_BOTH
@@ -1789,7 +1789,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * specified Content is constructed correctly. Will wait until the Content
 	 * is fully added; for asynchronous additions of Content, use the @addContentLater
 	 * method.
-	 * 
+	 *
 	 * @param c
 	 * @return the added Content, or null if an error occurred.
 	 */
@@ -1809,7 +1809,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add the specified Content to the universe. It is assumed that the
 	 * specified Content is constructed correctly. The Content is added
 	 * asynchronously, and this method returns immediately.
-	 * 
+	 *
 	 * @param c
 	 *            The Content to add
 	 * @return a Future holding the added Content, or null if an error occurred.
@@ -1859,7 +1859,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 * Add the specified collection of Content to the universe. It is assumed
 	 * that the specified Content is constructed correctly. The Content is added
 	 * asynchronously, and this method returns immediately.
-	 * 
+	 *
 	 * @param c
 	 *            The Collection of Content to add
 	 * @return a Collection of Future objects, each holding an added Content.

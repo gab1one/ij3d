@@ -3,8 +3,8 @@
 package process3d;
 
 import ij.ImagePlus;
-import ij.plugin.filter.PlugInFilter;
 import ij.gui.GenericDialog;
+import ij.plugin.filter.PlugInFilter;
 import ij.process.ImageProcessor;
 
 /**

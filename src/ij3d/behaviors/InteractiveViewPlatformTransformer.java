@@ -1,6 +1,7 @@
 package ij3d.behaviors;
 
 import ij3d.DefaultUniverse;
+
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 

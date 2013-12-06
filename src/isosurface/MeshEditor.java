@@ -3,16 +3,16 @@
  */
 package isosurface;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.vecmath.Point3f;
 
 import customnode.CustomTriangleMesh;
-
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 
 public class MeshEditor {
 

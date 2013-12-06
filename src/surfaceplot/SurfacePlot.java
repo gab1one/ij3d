@@ -1,10 +1,6 @@
 package surfaceplot;
 
-import com.sun.j3d.utils.geometry.GeometryInfo;
-import com.sun.j3d.utils.geometry.NormalGenerator;
-
 import ij.IJ;
-
 import ij3d.Volume;
 
 import java.awt.Color;
@@ -17,10 +13,12 @@ import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.TransparencyAttributes;
 import javax.media.j3d.TriangleArray;
-
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
+
+import com.sun.j3d.utils.geometry.GeometryInfo;
+import com.sun.j3d.utils.geometry.NormalGenerator;
 
 /**
  * This class displays an image stack as a surface plot.

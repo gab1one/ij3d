@@ -1,9 +1,17 @@
 package orthoslice;
 
-import javax.media.j3d.*;
-import javax.vecmath.*;
 import ij.ImagePlus;
+
 import java.util.BitSet;
+
+import javax.media.j3d.Group;
+import javax.media.j3d.QuadArray;
+import javax.media.j3d.Shape3D;
+import javax.media.j3d.Switch;
+import javax.media.j3d.TexCoordGeneration;
+import javax.media.j3d.Texture2D;
+import javax.media.j3d.View;
+import javax.vecmath.Color3f;
 
 import voltex.VolumeRenderer;
 

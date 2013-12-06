@@ -1,12 +1,12 @@
 package ij3d;
 
-import javax.vecmath.Color3f;
-
-import java.awt.image.IndexColorModel;
-
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ByteProcessor;
+
+import java.awt.image.IndexColorModel;
+
+import javax.vecmath.Color3f;
 
 
 

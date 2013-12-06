@@ -1,23 +1,28 @@
 package ij3d;
 
-import ij.gui.GenericDialog;
 import ij.IJ;
+import ij.gui.GenericDialog;
+
+import java.awt.Button;
+import java.awt.FlowLayout;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.Iterator;
-import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
-import vib.PointList;
+import javax.media.j3d.Transform3D;
+import javax.media.j3d.View;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+
 import vib.BenesNamedPoint;
 import vib.FastMatrix;
-
-import javax.media.j3d.View;
-import javax.media.j3d.Transform3D;
+import vib.PointList;
 
 public class RegistrationMenubar extends JMenuBar implements ActionListener,
 							UniverseListener {

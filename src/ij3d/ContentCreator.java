@@ -1,24 +1,24 @@
 package ij3d;
 
-import ij.ImageStack;
-import ij.ImagePlus;
 import ij.IJ;
+import ij.ImagePlus;
+import ij.ImageStack;
 import ij.io.FileInfo;
 import ij.process.ColorProcessor;
 import ij.process.ImageConverter;
 import ij.process.StackConverter;
 
 import java.io.File;
-import java.util.TreeMap;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
-
-import customnode.CustomMesh;
-import customnode.CustomMultiMesh;
-import customnode.CustomMeshNode;
+import java.util.TreeMap;
 
 import javax.vecmath.Color3f;
+
+import customnode.CustomMesh;
+import customnode.CustomMeshNode;
+import customnode.CustomMultiMesh;
 
 public class ContentCreator {
 
@@ -268,7 +268,6 @@ public class ContentCreator {
 			nChannels = image.getNChannels();
 			nSlices = image.getNSlices();
 			nFrames = image.getNFrames();
-			System.out.println("nFrames = " + nFrames);
 			w = image.getWidth();
 			h = image.getHeight();
 		}
