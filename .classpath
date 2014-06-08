@@ -3,8 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/ij-1.48d.jar"/>
-	<classpathentry kind="lib" path="lib/imglib.jar"/>
 	<classpathentry kind="lib" path="lib/j3dcore.jar"/>
 	<classpathentry kind="lib" path="lib/j3dutils.jar"/>
 	<classpathentry kind="lib" path="lib/vecmath.jar"/>
