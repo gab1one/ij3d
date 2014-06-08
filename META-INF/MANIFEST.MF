@@ -5,7 +5,8 @@ Bundle-SymbolicName: ij3d
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.knime.knip.core;bundle-version="1.1.0",
- org.knime.knip.base;bundle-version="1.1.0"
+ org.knime.knip.base;bundle-version="1.1.0",
+ org.knime.knip.imagej2.core
 Bundle-ClassPath: lib/ij-1.48d.jar,
  .,
  lib/j3dcore.jar,

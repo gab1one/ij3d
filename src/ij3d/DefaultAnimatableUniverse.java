@@ -52,11 +52,6 @@ public abstract class DefaultAnimatableUniverse extends DefaultUniverse {
 	private TransformGroup rotationTG;
 
 	/**
-	 * ImageStack holding the image series after recording an animation.
-	 */
-	private ImageStack freehandStack;
-
-	/**
 	 * Constructor
 	 * @param width of the universe
 	 * @param height of the universe
@@ -105,11 +100,11 @@ public abstract class DefaultAnimatableUniverse extends DefaultUniverse {
 				public void contentSelected(Content c) {}
 
 				public void transformationUpdated(View view) {
-					addFreehandRecordingFrame();
+					// TODO Auto-generated method stub
 				}
 
 				public void contentChanged(Content c) {
-					addFreehandRecordingFrame();
+					// TODO Auto-generated method stub
 				}
 		});
 	}
@@ -126,104 +121,6 @@ public abstract class DefaultAnimatableUniverse extends DefaultUniverse {
 	 */
 	public float getRotationInterval() {
 		return rotationInterval;
-	}
-
-	/**
-	 * Add a new frame to the freehand recording stack.
-	 */
-	private void addFreehandRecordingFrame() {
-		if(freehandStack == null)
-			return;
-
-		win.updateImagePlus();
-		ImageProcessor ip = win.getImagePlus().getProcessor();
-		freehandStack.addSlice("", ip);
-	}
-
-	/**
-	 * Start freehand recording.
-	 */
-	public void startFreehandRecording() {
-		// check if is's already running.
-		if(freehandStack != null)
-			return;
-
-		// create a new stack
-		win.updateImagePlus();
-		ImageProcessor ip = win.getImagePlus().getProcessor();
-		freehandStack = new ImageStack(ip.getWidth(), ip.getHeight());
-		freehandStack.addSlice("", ip);
-	}
-
-	/**
-	 * Stop freehand recording.
-	 * Returns an ImagePlus whose stack contains the frames of the movie.
-	 */
-	public ImagePlus stopFreehandRecording() {
-		if(freehandStack == null || freehandStack.getSize() == 1)
-			return null;
-
-		ImagePlus imp = new ImagePlus("Movie", freehandStack);
-		freehandStack = null;
-		return imp;
-	}
-
-	/**
-	 * Records a full 360 degree rotation and returns an ImagePlus
-	 * containing the frames of the animation.
-	 */
-	public ImagePlus record360() {
-		// check if freehand recording is running
-		if(freehandStack != null) {
-			IJ.error("Freehand recording is active. Stop first.");
-			return null;
-		}
-		// stop the animation
-		if(!animation.isPaused())
-			pauseAnimation();
-		// create a new stack
-		ImageProcessor ip = win.getImagePlus().getProcessor();
-		ImageStack stack = new ImageStack(ip.getWidth(), ip.getHeight());
-		// prepare everything
-		updateRotationAxisAndCenter();
-		try {
-			Thread.sleep(1000);
-		} catch (Exception e) {e.printStackTrace();}
-		centerXformInv.invert(centerXform);
-		double deg2 = rotationInterval * Math.PI / 180;
-		int steps = (int)Math.round(2 * Math.PI / deg2);
-
-		getCanvas().getView().stopView();
-
-		double alpha = 0;
-
-		// update transformation and record
-		for(int i = 0; i < steps; i++) {
-			alpha = i * deg2;
-			rotationXform.rotY(alpha);
-			rotate.mul(centerXform, rotationXform);
-			rotate.mul(rotate, centerXformInv);
-			animationTG.setTransform(rotate);
-			fireTransformationUpdated();
-			getCanvas().getView().renderOnce();
-			win.updateImagePlusAndWait();
-			ip = win.getImagePlus().getProcessor();
-			int w = ip.getWidth(), h = ip.getHeight();
-			if(stack == null)
-				stack = new ImageStack(w, h);
-			stack.addSlice("", ip);
-		}
-
-		// restart the view and animation
-		getCanvas().getView().startView();
-
-		// cleanup
-		incorporateAnimationInRotation();
-
-		if(stack.getSize() == 0)
-			return null;
-		ImagePlus imp = new ImagePlus("Movie", stack);
-		return imp;
 	}
 
 	/**

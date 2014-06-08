@@ -1,16 +1,9 @@
 package ij3d;
 
+
 import ij.IJ;
-import ij.ImagePlus;
-import ij.WindowManager;
 import ij.gui.GenericDialog;
-import ij.gui.YesNoCancelDialog;
-import ij.io.DirectoryChooser;
-import ij.io.OpenDialog;
-import ij.io.SaveDialog;
-import ij.plugin.frame.Recorder;
 import ij.text.TextWindow;
-import ij3d.gui.ContentCreatorDialog;
 import ij3d.gui.InteractiveMeshDecimation;
 import ij3d.gui.InteractiveTransformDialog;
 import ij3d.gui.LUTDialog;
@@ -59,6 +52,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
+import net.imglib2.meta.ImgPlus;
 import math3d.TransformIO;
 import orthoslice.MultiOrthoGroup;
 import orthoslice.OrthoGroup;
@@ -77,11 +71,6 @@ public class Executer {
 	// ImageJ3DViewer.
 	public static final String START_ANIMATE = "startAnimate";
 	public static final String STOP_ANIMATE = "stopAnimate";
-	public static final String START_FREEHAND_RECORDING
-		= "startFreehandRecording";
-	public static final String STOP_FREEHAND_RECORDING
-		= "stopFreehandRecording";
-	public static final String RECORD_360 = "record360";
 	public static final String RESET_VIEW = "resetView";
 	public static final String SCALEBAR = "scalebar";
 	public static final String CLOSE = "close";
@@ -123,257 +112,14 @@ public class Executer {
 	 * File menu
 	 * *********************************************************/
 
-	public void addContentFromFile() {
-		JFileChooser chooser = new JFileChooser(OpenDialog.getLastDirectory());
-		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		chooser.setMultiSelectionEnabled(false);
-		int returnVal = chooser.showOpenDialog(null);
-		if (returnVal != JFileChooser.APPROVE_OPTION)
-			return;
-		File f = chooser.getSelectedFile();
-		OpenDialog.setLastDirectory(f.getParentFile().getAbsolutePath());
-		addContent(null, f);
-	}
-
-	public void addContentFromImage(ImagePlus image) {
-		addContent(image, null);
-	}
-
-	public void addTimelapseFromFile() {
-		addContentFromFile();
-	}
-
-	public void addTimelapseFromFolder() {
-		DirectoryChooser dc = new DirectoryChooser("Open from folder");
-		String dir = dc.getDirectory();
-		if(dir == null)
-			return;
-		File d = new File(dir);
-		if(d.exists())
-			addContent(null, d);
-		else
-			IJ.error("Cannot load " + d.getAbsolutePath());
-	}
-
-	public void addTimelapseFromHyperstack(ImagePlus image) {
-		addContentFromImage(image);
-	}
-
-	public void addContent(final ImagePlus image, final File file) {
-		new Thread() {
-			{ setPriority(Thread.NORM_PRIORITY); }
-			@Override
-			public void run() {
-				addC(image, file);
-			}
-		}.start();
-	}
-
-	private Content addC(ImagePlus image, File file) {
-		ContentCreatorDialog gui = new ContentCreatorDialog();
-		Content c = gui.showDialog(univ, image, file);
-		if(c == null)
-			return null;
-
-		univ.addContent(c);
-
-		// record
-		String title = gui.getFile() != null ?
-			gui.getFile().getAbsolutePath() :
-			gui.getImage().getTitle();
-		boolean[] channels = gui.getChannels();
-		String[] arg = new String[] {
-			title,
-			ColorTable.getColorName(gui.getColor()),
-			gui.getName(),
-			Integer.toString(gui.getThreshold()),
-			Boolean.toString(channels[0]),
-			Boolean.toString(channels[1]),
-			Boolean.toString(channels[2]),
-			Integer.toString(gui.getResamplingFactor()),
-			Integer.toString(gui.getType())};
-		record(ADD, arg);
-
-		return c;
-	}
-
 	public void delete(Content c) {
 		if(!checkSel(c))
 			return;
 		univ.removeContent(c.getName());
-		record(DELETE);
-	}
-
-	protected void importFile(String dialogTitle, String extension, String formatDescription) {
-		OpenDialog od = new OpenDialog(dialogTitle, OpenDialog.getDefaultDirectory(), null);
-		String filename = od.getFileName();
-		if (null == filename) return;
-		if (!filename.toLowerCase().endsWith(extension)) {
-			IJ.showMessage("Must select a " + formatDescription + " file!");
-			return;
-		}
-		String path = new StringBuilder(od.getDirectory()).append(filename).toString();
-		IJ.log("path: " + path);
-		Object ob;
-		try {
-			ob = univ.addContentLater(path);
-			record(IMPORT, path);
-		} catch (Exception e) {
-			e.printStackTrace();
-			ob = null;
-		}
-		if (null == ob)
-			IJ.showMessage("Could not load the file:\n" + path);
-	}
-
-	public void importWaveFront() {
-		importFile("Select .obj file", ".obj", "wavefront .ob");
-	}
-
-	public void importSTL() {
-		importFile("Select .stl file", ".stl", "STL");
-	}
-
-	public void saveAsDXF() {
-		File dxf_file = promptForFile("Save as DXF", "untitled", ".dxf");
-		if(dxf_file == null)
-			return;
-		MeshExporter.saveAsDXF(univ.getContents(), dxf_file);
-		record(EXPORT, "DXF", dxf_file.getAbsolutePath());
-	}
-
-	public void saveAsWaveFront() {
-		File obj_file = promptForFile("Save WaveFront", "untitled", ".obj");
-		if(obj_file == null)
-			return;
-		MeshExporter.saveAsWaveFront(univ.getContents(), obj_file);
-		record(EXPORT, "WaveFront", obj_file.getAbsolutePath());
-	}
-
-	public void saveAsAsciiSTL(){
-		File stl_file = promptForFile("Save as STL (ASCII)", "untitled", ".stl");
-		if(stl_file == null)
-			return;
-		MeshExporter.saveAsSTL(univ.getContents(), stl_file, MeshExporter.ASCII);
-		record(EXPORT, "STL ASCII", stl_file.getAbsolutePath());
-	}
-
-	public void saveAsBinarySTL(){
-		File stl_file = promptForFile("Save as STL (binary)", "untitled", ".stl");
-		if(stl_file == null)
-			return;
-		MeshExporter.saveAsSTL(univ.getContents(), stl_file, MeshExporter.BINARY);
-		record(EXPORT, "STL Binary", stl_file.getAbsolutePath());
-	}
-
-	public static File promptForFile(String title, String suggestion, String ending) {
-		SaveDialog sd = new SaveDialog(title, suggestion, ending);
-		String dir = sd.getDirectory();
-		if (null == dir)
-			return null;
-		String filename = sd.getFileName();
-		if (!filename.toLowerCase().endsWith(ending))
-			filename += ending;
-
-		File file = new File(dir, filename);
-		// check if file exists
-		if (!IJ.isMacOSX()) {
-			if(file.exists()) {
-				YesNoCancelDialog yn = new YesNoCancelDialog(IJ.getInstance(), "Overwrite?", "File  " + filename + " exists!\nOverwrite?");
-				if (!yn.yesPressed())
-					return null;
-			}
-		}
-
-		return file;
-	}
-
-	public void saveAsU3D(){
-		SaveDialog sd = new SaveDialog(
-			"Save meshes as u3d...", "", ".u3d");
-		String dir = sd.getDirectory();
-		String name = sd.getFileName();
-		if(dir == null || name == null)
-			return;
-		try {
-			U3DExporter.export(univ, dir + name);
-			String tex = U3DExporter.getTexStub(univ, dir + name);
-			IJ.log("% Here are a few latex example lines");
-			IJ.log("% You can compile them for example via");
-			IJ.log("% pdflatex yourfilename.tex");
-			IJ.log("");
-			IJ.log(tex);
-			record(EXPORT, "U3D", dir + name);
-		} catch(Exception e) {
-			IJ.error(e.getMessage());
-		}
-	}
-
-	public void loadView() {
-		OpenDialog sd = new OpenDialog(
-			"Open view...", "", ".view");
-		final String dir = sd.getDirectory();
-		final String name = sd.getFileName();
-		if(dir == null || name == null)
-			return;
-		try {
-			univ.loadView(dir + name);
-		} catch(Exception e) {
-			IJ.error(e.getMessage());
-		}
-	}
-
-	public void saveView() {
-		SaveDialog sd = new SaveDialog(
-			"Save view...", "", ".view");
-		String dir = sd.getDirectory();
-		String name = sd.getFileName();
-		if(dir == null || name == null)
-			return;
-		try {
-			univ.saveView(dir + name);
-		} catch(Exception e) {
-			IJ.error(e.getMessage());
-		}
-	}
-
-	public void loadSession() {
-		OpenDialog sd = new OpenDialog(
-			"Open session...", "session", ".scene");
-		final String dir = sd.getDirectory();
-		final String name = sd.getFileName();
-		if(dir == null || name == null)
-			return;
-		new Thread() {
-			{ setPriority(Thread.NORM_PRIORITY); }
-			@Override
-			public void run() {
-				try {
-					univ.loadSession(dir + name);
-				} catch(Exception e) {
-					IJ.error(e.getMessage());
-				}
-			}
-		}.start();
-	}
-
-	public void saveSession() {
-		SaveDialog sd = new SaveDialog(
-			"Save session...", "session", ".scene");
-		String dir = sd.getDirectory();
-		String name = sd.getFileName();
-		if(dir == null || name == null)
-			return;
-		try {
-			univ.saveSession(dir + name);
-		} catch(Exception e) {
-			IJ.error(e.getMessage());
-		}
 	}
 
 	public void close() {
 		univ.close();
-		record(CLOSE);
 	}
 
 
@@ -482,7 +228,7 @@ public class Executer {
 		final boolean vis1 = os.isVisible(VolumeRenderer.X_AXIS);
 		final boolean vis2 = os.isVisible(VolumeRenderer.Y_AXIS);
 		final boolean vis3 = os.isVisible(VolumeRenderer.Z_AXIS);
-		ImagePlus imp = c.getImage();
+		ImgPlus imp = c.getImage();
 		int w = imp.getWidth() / c.getResamplingFactor();
 		int h = imp.getHeight() / c.getResamplingFactor();
 		int d = imp.getStackSize() / c.getResamplingFactor();
@@ -534,10 +280,6 @@ public class Executer {
 					univ.fireContentChanged(c);
 					return;
 				} else {
-					record(SET_SLICES,
-					Integer.toString(sl[0].getValue()),
-					Integer.toString(sl[1].getValue()),
-					Integer.toString(sl[2].getValue()));
 					return;
 				}
 			}
@@ -559,7 +301,6 @@ public class Executer {
 				((VoltexGroup)c.getContent()).
 					fillRoi(canvas, canvas.getRoi(), (byte)0);
 				univ.fireContentChanged(c);
-				record(FILL_SELECTION);
 			}
 		}.start();
 	}
@@ -736,12 +477,6 @@ public class Executer {
 
 			@Override
 			public void ok(final GenericDialog gd) {
-				if (gd.getNextBoolean())
-					record(SET_COLOR, "null", "null", "null");
-				else
-					record(SET_COLOR, "" + (int)gd.getNextNumber(),
-						"" + (int)gd.getNextNumber(), "" + (int)gd.getNextNumber());
-
 				// gd.wasOKed: apply to all time points
 				if (gd.getNextBoolean())
 					c.setColor(ci.getColor());
@@ -768,7 +503,6 @@ public class Executer {
 
 			@Override
 			public void ok(final GenericDialog gd) {
-				// TODO macro record
 			}
 		};
 		showColorDialog("Adjust background color ...", oldC, colorListener, false, false);
@@ -788,7 +522,6 @@ public class Executer {
 
 			@Override
 			public void ok(final GenericDialog gd) {
-				// TODO: record
 				// gd.wasOKed: apply to all time points
 				if (gd.getNextBoolean())
 					c.setLandmarkColor(ci.getLandmarkColor());
@@ -818,7 +551,6 @@ public class Executer {
 		});
 		ld.showDialog();
 
-		// TODO record
 	}
 
 	public void changeChannels(Content c) {
@@ -844,9 +576,6 @@ public class Executer {
 		else
 			ci.setChannels(channels);
 		univ.fireContentChanged(c);
-		record(SET_CHANNELS, Boolean.toString(channels[0]),
-			Boolean.toString(channels[1]),
-			Boolean.toString(channels[2]));
 	}
 
 	public void changeTransparency(final Content c) {
@@ -907,10 +636,6 @@ public class Executer {
 				// apply to all instants of the content
 				if(aBox.getState())
 					c.setTransparency(ci.getTransparency());
-
-				record(SET_TRANSPARENCY, Float.
-					toString(((Scrollbar)gd.getSliders().
-					get(0)).getValue() / 100f));
 			}
 		});
 		gd.showDialog();
@@ -950,7 +675,6 @@ public class Executer {
 			else
 				ci.setThreshold(th);
 			univ.fireContentChanged(c);
-			record(SET_THRESHOLD, Integer.toString(th));
 			return;
 		}
 		// in case we've not a mesh, change it interactively
@@ -983,9 +707,6 @@ public class Executer {
 					if(aBox.getState())
 						c.setThreshold(ci.getThreshold());
 
-					record(SET_THRESHOLD,
-						Integer.toString(
-						c.getThreshold()));
 				} finally {
 					// [ This code block executes even when
 					//   calling return above ]
@@ -1068,8 +789,9 @@ public class Executer {
 		gd.showDialog();
 		if(gd.wasCanceled())
 			return;
+		
 
-		ImagePlus colorImage = WindowManager.getImage(gd.getNextChoice());
+		ImgPlus colorImage = WindowManager.getImage(gd.getNextChoice());
 		if(gd.getNextBoolean())
 			c.applySurfaceColors(colorImage);
 		else if(c.getCurrent() != null)
@@ -1083,7 +805,6 @@ public class Executer {
 		if(!checkSel(c))
 			return;
 		c.showCoordinateSystem(b);
-		record(SET_CS, Boolean.toString(b));
 	}
 
 	public void showBoundingBox(Content c, boolean b) {
@@ -1225,11 +946,11 @@ public class Executer {
 	 * Transformation menu
 	 * *********************************************************/
 	public void setLocked(Content c, boolean b) {
-		if(!checkSel(c))
+		if(!checkSel(c)){
 			return;
+		} else {
 		c.setLocked(b);
-		if(b) record(LOCK);
-		else record(UNLOCK);
+		}
 	}
 
 	public void resetTransform(Content c) {
@@ -1242,7 +963,6 @@ public class Executer {
 		univ.fireTransformationStarted();
 		c.setTransform(new Transform3D());
 		univ.fireTransformationFinished();
-		record(RESET_TRANSFORM);
 	}
 
 	@SuppressWarnings("serial")
@@ -1281,7 +1001,6 @@ public class Executer {
 				float[] v = new float[16];
 				t.get(v);
 				univ.setUseToFront(useToFront);
-				record(SET_TRANSFORM, affine2string(v));
 			}
 			@Override
 			public void canceled() {
@@ -1333,7 +1052,6 @@ public class Executer {
 				float[] v = new float[16];
 				t.get(v);
 				univ.setUseToFront(useToFront);
-				record(APPLY_TRANSFORM, affine2string(v));
 			}
 			@Override
 			public void canceled() {
@@ -1353,8 +1071,6 @@ public class Executer {
 		t1.mul(t2);
 		float[] matrix = new float[16];
 		t1.get(matrix);
-		if(new TransformIO().saveAffineTransform(matrix))
-			record(SAVE_TRANSFORM, affine2string(matrix));
 	}
 
 	public void exportTransformed(final Content c) {
@@ -1372,7 +1088,6 @@ public class Executer {
 	private void exportTr(Content c) {
 		try {
 			c.exportTransformed().show();
-			record(EXPORT_TRANSFORMED);
 		} catch(Exception e) {
 			e.printStackTrace();
 			IJ.error(e.getMessage());
@@ -1405,7 +1120,6 @@ public class Executer {
 	 * *********************************************************/
 	public void resetView() {
 		univ.resetView();
-		record(RESET_VIEW);
 	}
 
 	public void centerSelected(Content c) {
@@ -1435,38 +1149,12 @@ public class Executer {
 		univ.adjustView(c);
 	}
 
-	public void record360() {
-		new Thread() {
-			@Override
-			public void run() {
-				ImagePlus movie = univ.record360();
-				if(movie != null)
-					movie.show();
-				record(RECORD_360);
-			}
-		}.start();
-	}
-
-	public void startFreehandRecording() {
-		univ.startFreehandRecording();
-		record(START_FREEHAND_RECORDING);
-	}
-
-	public void stopFreehandRecording() {
-		ImagePlus movie = univ.stopFreehandRecording();
-		if(movie != null)
-			movie.show();
-		record(STOP_FREEHAND_RECORDING);
-	}
-
 	public void startAnimation() {
 		univ.startAnimation();
-		record(START_ANIMATE);
 	}
 
 	public void stopAnimation() {
 		univ.pauseAnimation();
-		record(STOP_ANIMATE);
 	}
 
 	public void changeAnimationOptions() {
@@ -1525,7 +1213,6 @@ public class Executer {
 			return;
 		}
 		univ.takeSnapshot(w, h).show();
-		record(SNAPSHOT, Integer.toString(w), Integer.toString(h));
 	}
 
 	public void viewPreferences() {
@@ -1547,7 +1234,6 @@ public class Executer {
 
 			@Override
 			public void ok(final GenericDialog gd) {
-				// TODO macro record
 			}
 		};
 		showColorDialog("Adjust light", col, colorListener, false, false);
@@ -1673,7 +1359,7 @@ public class Executer {
 		return m;
 	}
 
-	private static final int getAutoThreshold(ImagePlus imp) {
+	private static final int getAutoThreshold(ImgPlus imp) {
 		int[] histo = new int[256];
 		int d = imp.getStackSize();
 		for(int z = 0; z < d; z++) {
@@ -1692,22 +1378,6 @@ public class Executer {
 		}
 		return true;
 	}
-
-
-
-	/* **********************************************************
-	 * Recording methods
-	 * *********************************************************/
-	public static void record(String command, String... args) {
-		command = "call(\"ij3d.ImageJ3DViewer." + command;
-		for(int i = 0; i < args.length; i++)
-			command += "\", \"" + args[i];
-		command += "\");\n";
-		if(Recorder.record)
-			Recorder.recordString(command);
-	}
-
-
 
 	/* **********************************************************
 	 * Thread which handles the updates of sliders
