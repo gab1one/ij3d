@@ -44,7 +44,6 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
 
-import octree.VolumeOctree;
 import view4d.Timeline;
 import view4d.TimelineGUI;
 import customnode.CustomLineMesh;
@@ -692,123 +691,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	public void getGlobalMaxPoint(Point3d p) {
 		p.set(globalMax);
 	}
-
-	/* *************************************************************
-	 * Octree methods - deprecated
-	 * ************************************************************
-	 */
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	@Deprecated
-	public void updateOctree() {
-		// if(octree != null)
-		// octree.update();
-	}
-
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	@Deprecated
-	public void cancelOctree() {
-		// if(octree != null)
-		// octree.cancel();
-	}
-
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	@Deprecated
-	private VolumeOctree octree = null;
-
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	@Deprecated
-	public void removeOctree() {
-		if (octree != null) {
-			this.removeUniverseListener(octree);
-			scene.removeChild(octree.getRootBranchGroup());
-			octree = null;
-		}
-	}
-
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	@Deprecated
-	public VolumeOctree addOctree(String imageDir, String name) {
-		if (octree != null) {
-			IJ.error("Only one large volume can be displayed a time.\n"
-					+ "Please remove previously displayed volumes first.");
-			return null;
-		}
-		if (contents.containsKey(name)) {
-			IJ.error("Name exists already");
-			return null;
-		}
-		try {
-			octree = new VolumeOctree(imageDir, canvas);
-			octree.displayInitial();
-			octree.getRootBranchGroup().compile();
-			scene.addChild(octree.getRootBranchGroup());
-			ensureScale(octree.realWorldXDim());
-			this.addUniverseListener(octree);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return octree;
-	}
-
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	/*
-	 * Requires an empty directory.
-	 */
-	// public VolumeOctree createAndAddOctree(
-	// String imagePath, String dir, String name) {
-	// File outdir = new File(dir);
-	// if(!outdir.exists())
-	// outdir.mkdir();
-	// if(!outdir.isDirectory()) {
-	// throw new RuntimeException("Not a directory");
-	// }
-	// try {
-	// new FilePreparer(imagePath, VolumeOctree.SIZE, dir).createFiles();
-	// return addOctree(dir, name);
-	// } catch(Exception e) {
-	// e.printStackTrace();
-	// throw new RuntimeException(e);
-	// }
-	// }
-
-	/**
-	 * @deprecated The octree methods will be outsourced into a different
-	 *             plugin.
-	 */
-	// public octree.VolumeOctree createAndAddOctree(
-	// ImagePlus image, String dir, String name) {
-	// File outdir = new File(dir);
-	// if(!outdir.exists())
-	// outdir.mkdir();
-	// if(!outdir.isDirectory()) {
-	// throw new RuntimeException("Not a directory");
-	// }
-	// try {
-	// new FilePreparer(image, VolumeOctree.SIZE, dir).createFiles();
-	// return addOctree(dir, name);
-	// } catch(Exception e) {
-	// e.printStackTrace();
-	// throw new RuntimeException(e);
-	// }
-	// }
 
 	/* *************************************************************
 	 * Adding and removing Contents

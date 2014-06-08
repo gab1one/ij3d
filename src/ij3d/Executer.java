@@ -204,30 +204,6 @@ public class Executer {
 		record(DELETE);
 	}
 
-// 	public void loadOctree() {
-// 		OctreeDialog od = new OctreeDialog();
-// 		od.showDialog();
-// 		if(!od.checkUserInput())
-// 			return;
-// 		String dir = od.getImageDir();
-// 		String name = od.getName();
-// 		String path = od.getImagePath();
-// 		if(od.shouldCreateData()) {
-// 			try {
-// 				new FilePreparer(path, VolumeOctree.SIZE, dir).createFiles();
-// 			} catch(Exception e) {
-// 				IJ.error(e.getMessage());
-// 				e.printStackTrace();
-// 				return;
-// 			}
-// 		}
-// 		univ.addOctree(dir, name);
-// 	}
-//
-// 	public void removeOctree() {
-// 		univ.removeOctree();
-// 	}
-
 	protected void importFile(String dialogTitle, String extension, String formatDescription) {
 		OpenDialog od = new OpenDialog(dialogTitle, OpenDialog.getDefaultDirectory(), null);
 		String filename = od.getFileName();
