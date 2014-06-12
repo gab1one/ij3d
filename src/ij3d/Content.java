@@ -27,9 +27,11 @@ import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3f;
 
+import net.imglib2.meta.ImgPlus;
 import vib.PointList;
 
-public class Content extends BranchGroup implements UniverseListener, ContentConstants, AxisConstants {
+public class Content extends BranchGroup implements UniverseListener,
+		ContentConstants, AxisConstants {
 
 	private HashMap<Integer, Integer> timepointToSwitchIndex;
 	private TreeMap<Integer, ContentInstant> contents;
@@ -68,7 +70,8 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 		this(name, contents, false);
 	}
 
-	public Content(String name, TreeMap<Integer, ContentInstant> contents, boolean swapTimelapseData) {
+	public Content(String name, TreeMap<Integer, ContentInstant> contents,
+			boolean swapTimelapseData) {
 		this.name = name;
 		this.swapTimelapseData = swapTimelapseData;
 		setCapability(BranchGroup.ALLOW_DETACH);
@@ -79,7 +82,7 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 		contentSwitch.setCapability(Switch.ALLOW_SWITCH_WRITE);
 		contentSwitch.setCapability(Switch.ALLOW_CHILDREN_WRITE);
 		contentSwitch.setCapability(Switch.ALLOW_CHILDREN_EXTEND);
-		for(int i : contents.keySet()) {
+		for (int i : contents.keySet()) {
 			ContentInstant c = contents.get(i);
 			c.timepoint = i;
 			timepointToSwitchIndex.put(i, contentSwitch.numChildren());
@@ -92,7 +95,7 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	public void addInstant(ContentInstant ci) {
 		int timepoint = ci.timepoint;
 		contents.put(timepoint, ci);
-		if(!contents.containsKey(timepoint)) {
+		if (!contents.containsKey(timepoint)) {
 			timepointToSwitchIndex.put(timepoint, contentSwitch.numChildren());
 			contentSwitch.addChild(ci);
 		} else {
@@ -102,15 +105,15 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	}
 
 	public void removeInstant(int timepoint) {
-		if(!contents.containsKey(timepoint))
+		if (!contents.containsKey(timepoint))
 			return;
 		int sIdx = timepointToSwitchIndex.get(timepoint);
 		contentSwitch.removeChild(sIdx);
 		contents.remove(timepoint);
 		timepointToSwitchIndex.remove(timepoint);
 		// update the following switch indices.
-		for(int i = sIdx; i < contentSwitch.numChildren(); i++) {
-			ContentInstant ci = (ContentInstant)contentSwitch.getChild(i);
+		for (int i = sIdx; i < contentSwitch.numChildren(); i++) {
+			ContentInstant ci = (ContentInstant) contentSwitch.getChild(i);
 			int tp = ci.getTimepoint();
 			timepointToSwitchIndex.put(tp, i);
 		}
@@ -133,11 +136,11 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	}
 
 	public void showTimepoint(int tp, boolean force) {
-		if(tp == currentTimePoint && !force)
+		if (tp == currentTimePoint && !force)
 			return;
 		ContentInstant old = getCurrent();
-		if(old != null && !showAllTimepoints) {
-			if(swapTimelapseData)
+		if (old != null && !showAllTimepoints) {
+			if (swapTimelapseData)
 				old.swapDisplayedData();
 			if (!showAllTimepoints) {
 				ContentInstant next = contents.get(tp);
@@ -147,14 +150,14 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 			getCurrent().showPointList(false);
 		}
 		currentTimePoint = tp;
-		if(showAllTimepoints)
+		if (showAllTimepoints)
 			return;
 		ContentInstant next = getCurrent();
-		if(next != null && swapTimelapseData)
-				next.restoreDisplayedData();
+		if (next != null && swapTimelapseData)
+			next.restoreDisplayedData();
 
 		Integer idx = timepointToSwitchIndex.get(tp);
-		if(idx == null)
+		if (idx == null)
 			contentSwitch.setWhichChild(Switch.CHILD_NONE);
 		else
 			contentSwitch.setWhichChild(idx);
@@ -162,12 +165,12 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 
 	public void setShowAllTimepoints(boolean b) {
 		this.showAllTimepoints = b;
-		if(b) {
+		if (b) {
 			contentSwitch.setWhichChild(Switch.CHILD_ALL);
 			return;
 		}
 		Integer idx = timepointToSwitchIndex.get(currentTimePoint);
-		if(idx == null)
+		if (idx == null)
 			contentSwitch.setWhichChild(Switch.CHILD_NONE);
 		else
 			contentSwitch.setWhichChild(idx);
@@ -193,230 +196,68 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 		return contents.lastKey();
 	}
 
-
 	// ==========================================================
 	// From here begins the 'Content Instant interface', i.e.
 	// methods which are delegated to the individual
 	// ContentInstants.
 	//
 	public void displayAs(int type) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.displayAs(type);
 	}
 
-	public static int getDefaultThreshold(ImagePlus imp, int type) {
+	public static int getDefaultThreshold(ImgPlus imp, int type) {
 		return ContentInstant.getDefaultThreshold(imp, type);
 	}
 
-	public static int getDefaultResamplingFactor(ImagePlus imp, int type) {
-		return ContentInstant.getDefaultResamplingFactor(imp, type);
+	public static int getDefaultResamplingFactor(ImgPlus image, int type) {
+		return ContentInstant.getDefaultResamplingFactor(image, type);
 	}
 
 	public void display(ContentNode node) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.display(node);
-	}
-
-	public ImagePlus exportTransformed() {
-		return getCurrent().exportTransformed();
 	}
 
 	/* ************************************************************
 	 * setters - visibility flags
 	 *
-	 * ***********************************************************/
+	 * **********************************************************
+	 */
 
 	public void setVisible(boolean b) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setVisible(b);
 	}
 
 	public void showBoundingBox(boolean b) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.showBoundingBox(b);
 	}
 
-
 	public void showCoordinateSystem(boolean b) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.showCoordinateSystem(b);
 	}
 
 	public void setSelected(boolean selected) {
 		// TODO really all?
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setSelected(selected);
-	}
-
-	/* ************************************************************
-	 * point list
-	 *
-	 * ***********************************************************/
-	public void setPointListDialog(PointListDialog p) {
-		for(ContentInstant c : contents.values())
-			c.setPointListDialog(p);
-	}
-
-	public void showPointList(boolean b) {
-		getCurrent().showPointList(b);
-		this.showPointList = b;
-	}
-
-	protected final static Pattern startFramePattern =
-		Pattern.compile("(?s)(?m).*?^(# frame:? (\\d+)\n).*");
-
-	public void loadPointList() {
-		String dir = null, fileName = null;
-		ImagePlus image = contents.firstEntry().getValue().image;
-		if (image != null) {
-			FileInfo fi = image.getFileInfo();
-			dir = fi.directory;
-			fileName = fi.fileName + ".points";
-		}
-		OpenDialog od = new OpenDialog("Open points annotation file", dir, fileName);
-		if (od.getFileName() == null)
-			return;
-
-		File file = new File(od.getDirectory(), od.getFileName());
-		try {
-			String fileContents = readFile(new FileInputStream(file));
-			Matcher matcher = startFramePattern.matcher(fileContents);
-			if (matcher.matches()) {
-				// empty point lists
-				for (Integer frame : contents.keySet())
-					contents.get(frame).setPointList(new PointList());
-				while (matcher.matches()) {
-					int frame = Integer.parseInt(matcher.group(2));
-					fileContents = fileContents.substring(matcher.end(1));
-					matcher = startFramePattern.matcher(fileContents);
-					ContentInstant ci = contents.get(frame);
-					if (ci == null)
-						continue;
-					String pointsForFrame = matcher.matches() ?
-						fileContents.substring(0, matcher.start(1)) : fileContents;
-					PointList points = PointList.parseString(pointsForFrame);
-					if (points != null)
-						ci.setPointList(points);
-				}
-			}
-			else {
-				// fall back to old-style one-per-frame point lists
-				PointList points = PointList.parseString(fileContents);
-				if (points != null)
-					getCurrent().setPointList(points);
-			}
-			showPointList(true);
-		}
-		catch (IOException e) {
-			IJ.error("Could not read point list from " + file);
-		}
-	}
-
-	String readFile(InputStream in) throws IOException {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024];
-		for (;;) {
-			int count = in.read(buffer);
-			if (count < 0)
-				break;
-			out.write(buffer, 0, count);
-		}
-		in.close();
-		out.close();
-		return out.toString("UTF-8");
-	}
-
-	public void savePointList() {
-		String dir = OpenDialog.getDefaultDirectory();
-		String fileName = getName();
-		ImagePlus image = contents.firstEntry().getValue().image;
-		if (image != null) {
-			FileInfo fi = image.getFileInfo();
-			dir = fi.directory;
-			fileName = fi.fileName;
-		}
-		SaveDialog sd = new SaveDialog("Save points annotation file as...",
-			dir, fileName, ".points");
-		if (sd.getFileName() == null)
-			return;
-
-		File file = new File(sd.getDirectory(), sd.getFileName());
-		if (file.exists() && !IJ.showMessageWithCancel("File exists", "Overwrite " + file + "?"))
-			return;
-		try {
-			PrintStream out = new PrintStream(file);
-			for (Integer frame : contents.keySet()) {
-				ContentInstant ci = contents.get(frame);
-				if (ci.getPointList().size() != 0) {
-					out.println("# frame " + frame);
-					ci.savePointList(out);
-				}
-			}
-			out.close();
-		}
-		catch (IOException e) {
-			IJ.error("Could not save points to " + file);
-		}
-	}
-
-	/**
-	 * @deprecated
-	 * @param p
-	 */
-	public void addPointListPoint(Point3d p) {
-		getCurrent().addPointListPoint(p);
-	}
-
-	/**
-	 * @deprecated
-	 * @param i
-	 * @param pos
-	 */
-	public void setListPointPos(int i, Point3d pos) {
-		getCurrent().setListPointPos(i, pos);
-	}
-
-	public float getLandmarkPointSize() {
-		return getCurrent().getLandmarkPointSize();
-	}
-
-	public void setLandmarkPointSize(float r) {
-		for(ContentInstant c : contents.values())
-			c.setLandmarkPointSize(r);
-	}
-
-	public Color3f getLandmarkColor() {
-		return getCurrent().getLandmarkColor();
-	}
-
-	public void setLandmarkColor(Color3f color) {
-		for(ContentInstant c : contents.values())
-			c.setLandmarkColor(color);
-	}
-
-	public PointList getPointList() {
-		return getCurrent().getPointList();
-	}
-
-	/**
-	 * @deprecated
-	 * @param i
-	 */
-	public void deletePointListPoint(int i) {
-		getCurrent().deletePointListPoint(i);
 	}
 
 	/* ************************************************************
 	 * setters - transform
 	 *
-	 **************************************************************/
+	 * ************************************************************
+	 */
 	public void toggleLock() {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.toggleLock();
 	}
 
 	public void setLocked(boolean b) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setLocked(b);
 	}
 
@@ -425,16 +266,22 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	}
 
 	public void applyTransform(Transform3D transform) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.applyTransform(transform);
 	}
 
 	public void applyRotation(int axis, double degree) {
 		Transform3D t = new Transform3D();
-		switch(axis) {
-			case X_AXIS: t.rotX(deg2rad(degree)); break;
-			case Y_AXIS: t.rotY(deg2rad(degree)); break;
-			case Z_AXIS: t.rotZ(deg2rad(degree)); break;
+		switch (axis) {
+		case X_AXIS:
+			t.rotX(deg2rad(degree));
+			break;
+		case Y_AXIS:
+			t.rotY(deg2rad(degree));
+			break;
+		case Z_AXIS:
+			t.rotZ(deg2rad(degree));
+			break;
 		}
 		applyTransform(t);
 	}
@@ -450,16 +297,22 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	}
 
 	public void setTransform(Transform3D transform) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setTransform(transform);
 	}
 
 	public void setRotation(int axis, double degree) {
 		Transform3D t = new Transform3D();
-		switch(axis) {
-			case X_AXIS: t.rotX(deg2rad(degree)); break;
-			case Y_AXIS: t.rotY(deg2rad(degree)); break;
-			case Z_AXIS: t.rotZ(deg2rad(degree)); break;
+		switch (axis) {
+		case X_AXIS:
+			t.rotX(deg2rad(degree));
+			break;
+		case Y_AXIS:
+			t.rotY(deg2rad(degree));
+			break;
+		case Z_AXIS:
+			t.rotZ(deg2rad(degree));
+			break;
 		}
 		setTransform(t);
 	}
@@ -477,65 +330,77 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	/* ************************************************************
 	 * setters - attributes
 	 *
-	 * ***********************************************************/
+	 * **********************************************************
+	 */
 
 	public void setChannels(boolean[] channels) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setChannels(channels);
 	}
 
 	public void setLUT(int[] r, int[] g, int[] b, int[] a) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setLUT(r, g, b, a);
 	}
 
 	public void setThreshold(int th) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setThreshold(th);
 	}
 
 	public void setShaded(boolean b) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setShaded(b);
 	}
 
 	public void setSaturatedVolumeRendering(boolean b) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setSaturatedVolumeRendering(b);
 	}
 
 	public void applySurfaceColors(ImagePlus img) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.applySurfaceColors(img);
 	}
 
 	public void setColor(Color3f color) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setColor(color);
 	}
 
 	public synchronized void setTransparency(float transparency) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.setTransparency(transparency);
 	}
 
 	/* ************************************************************
 	 * UniverseListener interface
 	 *
-	 *************************************************************/
-	public void transformationStarted(View view) {}
-	public void contentAdded(Content c) {}
+	 * ***********************************************************
+	 */
+	public void transformationStarted(View view) {
+	}
+
+	public void contentAdded(Content c) {
+	}
+
 	public void contentRemoved(Content c) {
-		for(ContentInstant co : contents.values()) {
+		for (ContentInstant co : contents.values()) {
 			co.contentRemoved(c);
 		}
 	}
-	public void canvasResized() {}
-	public void contentSelected(Content c) {}
-	public void contentChanged(Content c) {}
+
+	public void canvasResized() {
+	}
+
+	public void contentSelected(Content c) {
+	}
+
+	public void contentChanged(Content c) {
+	}
 
 	public void universeClosed() {
-		for(ContentInstant c : contents.values()) {
+		for (ContentInstant c : contents.values()) {
 			c.universeClosed();
 		}
 	}
@@ -549,15 +414,15 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 		// apply same transformation to all other time points
 		// in case this content was transformed
 		ContentInstant curr = getCurrent();
-		if(curr == null || !curr.selected)
+		if (curr == null || !curr.selected)
 			return;
 		Transform3D t = new Transform3D();
 		Transform3D r = new Transform3D();
 		curr.getLocalTranslate(t);
 		curr.getLocalRotate(r);
 
-		for(ContentInstant c : contents.values()) {
-			if(c == getCurrent())
+		for (ContentInstant c : contents.values()) {
+			if (c == getCurrent())
 				continue;
 			c.getLocalRotate().setTransform(r);
 			c.getLocalTranslate().setTransform(t);
@@ -566,14 +431,15 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	}
 
 	public void eyePtChanged(View view) {
-		for(ContentInstant c : contents.values())
+		for (ContentInstant c : contents.values())
 			c.eyePtChanged(view);
 	}
 
 	/* *************************************************************
 	 * getters
 	 *
-	 **************************************************************/
+	 * ************************************************************
+	 */
 	@Override
 	public String getName() {
 		return name;
@@ -588,32 +454,34 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 	}
 
 	public void getMin(Point3d min) {
-		min.set(Double.MAX_VALUE,
-			Double.MAX_VALUE,
-			Double.MAX_VALUE);
+		min.set(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
 		Point3d tmp = new Point3d();
-		for(ContentInstant c : contents.values()) {
+		for (ContentInstant c : contents.values()) {
 			c.getContent().getMin(tmp);
-			if(tmp.x < min.x) min.x = tmp.x;
-			if(tmp.y < min.y) min.y = tmp.y;
-			if(tmp.z < min.z) min.z = tmp.z;
+			if (tmp.x < min.x)
+				min.x = tmp.x;
+			if (tmp.y < min.y)
+				min.y = tmp.y;
+			if (tmp.z < min.z)
+				min.z = tmp.z;
 		}
 	}
 
 	public void getMax(Point3d max) {
-		max.set(Double.MIN_VALUE,
-			Double.MIN_VALUE,
-			Double.MIN_VALUE);
+		max.set(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
 		Point3d tmp = new Point3d();
-		for(ContentInstant c : contents.values()) {
+		for (ContentInstant c : contents.values()) {
 			c.getContent().getMax(tmp);
-			if(tmp.x > max.x) max.x = tmp.x;
-			if(tmp.y > max.y) max.y = tmp.y;
-			if(tmp.z > max.z) max.z = tmp.z;
+			if (tmp.x > max.x)
+				max.x = tmp.x;
+			if (tmp.y > max.y)
+				max.y = tmp.y;
+			if (tmp.z > max.z)
+				max.z = tmp.z;
 		}
 	}
 
-	public ImagePlus getImage() {
+	public ImgPlus getImage() {
 		return getCurrent().getImage();
 	}
 
@@ -697,4 +565,3 @@ public class Content extends BranchGroup implements UniverseListener, ContentCon
 		return getCurrent().isPLVisible();
 	}
 }
-

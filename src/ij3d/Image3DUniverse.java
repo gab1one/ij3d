@@ -1,7 +1,6 @@
 package ij3d;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij3d.pointlist.PointListDialog;
 
 import java.awt.CheckboxMenuItem;
@@ -12,12 +11,8 @@ import java.awt.MenuItem;
 import java.awt.Rectangle;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -44,6 +39,7 @@ import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
 
+import net.imglib2.meta.ImgPlus;
 import view4d.Timeline;
 import view4d.TimelineGUI;
 import customnode.CustomLineMesh;
@@ -153,16 +149,16 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 		resetView();
 
 		// add mouse listeners
-//		canvas.addMouseMotionListener(new MouseMotionAdapter() {
-//			@Override
-//			public void mouseMoved(MouseEvent e) {
-//				Content c = picker.getPickedContent(e.getX(), e.getY());
-//				if (c != null)
-//					IJ.showStatus(c.getName());
-//				else
-//					IJ.showStatus("");
-//			}
-//		});
+		// canvas.addMouseMotionListener(new MouseMotionAdapter() {
+		// @Override
+		// public void mouseMoved(MouseEvent e) {
+		// Content c = picker.getPickedContent(e.getX(), e.getY());
+		// if (c != null)
+		// IJ.showStatus(c.getName());
+		// else
+		// IJ.showStatus("");
+		// }
+		// });
 
 		universes.add(this);
 	}
@@ -213,12 +209,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 		// if(System.getProperty("java.version").compareTo("1.6.0_12") < 0)
 		JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 		plDialog = new PointListDialog(this.win);
-		plDialog.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				hideAllLandmarks();
-			}
-		});
 		menubar = new Image3DMenubar(this);
 		registrationMenubar = new RegistrationMenubar(this);
 		setMenubar(menubar);
@@ -394,36 +384,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 		return executer;
 	}
 
-	/**
-	 * Returns a reference to the PointListDialog used by this universe
-	 */
-	public PointListDialog getPointListDialog() {
-		return plDialog;
-	}
-
-	/**
-	 * Hide point list dialog and all landmark points.
-	 */
-	public void hideAllLandmarks() {
-		for (Content c : contents.values()) {
-			c.showPointList(false);
-		}
-		// just for now, to update the menu bar
-		fireContentSelected(selected);
-	}
-
-	/* *************************************************************
-	 * Session methods
-	 * ************************************************************
-	 */
-	public void saveSession(String file) throws IOException {
-		SaveSession.saveScene(this, file);
-	}
-
-	public void loadSession(final String file) throws IOException {
-		removeAllContents();
-		SaveSession.loadScene(this, file);
-	}
 
 	/* *************************************************************
 	 * Timeline stuff
@@ -523,9 +483,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 		IJ.showStatus("selected: " + st);
 
 		fireContentSelected(selected);
-
-		if (c != null && ij.plugin.frame.Recorder.record)
-			Executer.record("select", c.getName());
 	}
 
 	/**
@@ -718,7 +675,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the type which determines how the image is displayed.
 	 * @return The Content which is added, null if any error occurred.
 	 */
-	public Content addContent(ImagePlus image, Color3f color, String name,
+	public Content addContent(ImgPlus image, Color3f color, String name,
 			int thresh, boolean[] channels, int resf, int type) {
 		if (contents.containsKey(name)) {
 			IJ.error("Content named '" + name + "' exists already");
@@ -749,9 +706,9 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the type which determines how the image is displayed.
 	 * @return The Content which is added, null if any error occurred.
 	 */
-	public Content addContent(ImagePlus image, int type, int res) {
+	public Content addContent(ImgPlus image, int type, int res) {
 		int thr = Content.getDefaultThreshold(image, type);
-		return addContent(image, null, image.getTitle(), thr, new boolean[] {
+		return addContent(image, null, image.getName(), thr, new boolean[] {
 				true, true, true }, res, type);
 	}
 
@@ -777,10 +734,10 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the type which determines how the image is displayed.
 	 * @return The Content which is added, null if any error occurred.
 	 */
-	public Content addContent(ImagePlus image, int type) {
+	public Content addContent(ImgPlus image, int type) {
 		int res = Content.getDefaultResamplingFactor(image, type);
 		int thr = Content.getDefaultThreshold(image, type);
-		return addContent(image, null, image.getTitle(), thr, new boolean[] {
+		return addContent(image, null, image.getName(), thr, new boolean[] {
 				true, true, true }, res, type);
 	}
 
@@ -801,7 +758,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addVoltex(ImagePlus image) {
+	public Content addVoltex(ImgPlus image) {
 		return addContent(image, Content.VOLUME);
 	}
 
@@ -820,7 +777,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addVoltex(ImagePlus image, int res) {
+	public Content addVoltex(ImgPlus image, int res) {
 		return addContent(image, Content.VOLUME, res);
 	}
 
@@ -844,7 +801,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            a resampling factor.
 	 * @return the added Content, null if any error occurred
 	 */
-	public Content addVoltex(ImagePlus image, Color3f color, String name,
+	public Content addVoltex(ImgPlus image, Color3f color, String name,
 			int thresh, boolean[] channels, int resamplingF) {
 		return addContent(image, color, name, thresh, channels, resamplingF,
 				Content.VOLUME);
@@ -867,7 +824,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addOrthoslice(ImagePlus image) {
+	public Content addOrthoslice(ImgPlus image) {
 		return addContent(image, Content.ORTHO);
 	}
 
@@ -886,7 +843,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addOrthoslice(ImagePlus image, int res) {
+	public Content addOrthoslice(ImgPlus image, int res) {
 		return addContent(image, Content.ORTHO, res);
 	}
 
@@ -910,7 +867,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            a resampling factor.
 	 * @return the added Content, null if any error occurred
 	 */
-	public Content addOrthoslice(ImagePlus image, Color3f color, String name,
+	public Content addOrthoslice(ImgPlus image, Color3f color, String name,
 			int thresh, boolean[] channels, int resamplingF) {
 		return addContent(image, color, name, thresh, channels, resamplingF,
 				Content.ORTHO);
@@ -933,7 +890,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addSurfacePlot(ImagePlus image) {
+	public Content addSurfacePlot(ImgPlus image) {
 		return addContent(image, Content.SURFACE_PLOT2D);
 	}
 
@@ -952,7 +909,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addSurfacePlot(ImagePlus image, int res) {
+	public Content addSurfacePlot(ImgPlus image, int res) {
 		return addContent(image, Content.SURFACE_PLOT2D, res);
 	}
 
@@ -976,7 +933,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            a resampling factor.
 	 * @return the added Content, null if any error occurred
 	 */
-	public Content addSurfacePlot(ImagePlus image, Color3f color, String name,
+	public Content addSurfacePlot(ImgPlus image, Color3f color, String name,
 			int thresh, boolean[] channels, int resamplingF) {
 		return addContent(image, color, name, thresh, channels, resamplingF,
 				Content.SURFACE_PLOT2D);
@@ -999,7 +956,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addMesh(ImagePlus img) {
+	public Content addMesh(ImgPlus img) {
 		return addContent(img, Content.SURFACE);
 	}
 
@@ -1018,7 +975,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            the image to display
 	 * @return the Content which was added, null if any error occurred.
 	 */
-	public Content addMesh(ImagePlus img, int res) {
+	public Content addMesh(ImgPlus img, int res) {
 		return addContent(img, Content.SURFACE, res);
 	}
 
@@ -1042,7 +999,7 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	 *            a resampling factor.
 	 * @return the added Content, null if any error occurred
 	 */
-	public Content addMesh(ImagePlus image, Color3f color, String name,
+	public Content addMesh(ImgPlus image, Color3f color, String name,
 			int threshold, boolean[] channels, int resamplingF) {
 
 		return addContent(image, color, name, threshold, channels, resamplingF,
@@ -1399,20 +1356,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 	}
 
 	/**
-	 * Save the current view transformations to a file
-	 */
-	public void saveView(String file) throws IOException {
-		SaveSession.saveView(this, file);
-	}
-
-	/**
-	 * Load view transformations from file
-	 */
-	public void loadView(final String file) throws IOException {
-		SaveSession.loadView(this, file);
-	}
-
-	/**
 	 * Reset the transformations of the view side of the scene graph as if the
 	 * Contents of this universe were just displayed.
 	 */
@@ -1658,8 +1601,6 @@ public class Image3DUniverse extends DefaultAnimatableUniverse {
 			this.scene.addChild(c);
 			this.contents.put(name, c);
 			this.recalculateGlobalMinMax(c);
-
-			c.setPointListDialog(plDialog);
 
 			c.showTimepoint(currentTimepoint, true);
 		}
