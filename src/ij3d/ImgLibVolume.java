@@ -1,9 +1,7 @@
 package ij3d;
 
-import mpicbg.imglib.cursor.LocalizableByDimCursor;
-import mpicbg.imglib.image.Image;
-import mpicbg.imglib.outofbounds.OutOfBoundsStrategyValueFactory;
-import mpicbg.imglib.type.numeric.RealType;
+import net.imglib2.type.numeric.RealType;
+
 
 /**
  * This class encapsulates an mpicbg.imglib.Image object, for use in Marching Cubes.
@@ -12,7 +10,7 @@ import mpicbg.imglib.type.numeric.RealType;
  */
 public class ImgLibVolume<T extends RealType<T>> extends Volume {
 
-	final Image<T> img;
+	final InputImg img;
 	LocalizableByDimCursor<T> cursor = null;
 
 	public ImgLibVolume(final Image<T> img, final float[] origin) throws Exception {

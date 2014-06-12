@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.imglib2.meta.ImgPlus;
 import math3d.Point3d;
 
 
@@ -193,8 +194,8 @@ public class PointList implements Iterable<BenesNamedPoint>{
 		return res;
 	}
 
-	public static PointList load(ImagePlus imp){
-		FileInfo info = imp.getOriginalFileInfo();
+	public static PointList load(ImgPlus image){
+		FileInfo info = image.getOriginalFileInfo();
 		if(info != null){
 			PointList l = load(info.directory,
 				info.fileName + ".points",true);

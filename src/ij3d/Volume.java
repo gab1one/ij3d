@@ -1,13 +1,15 @@
 package ij3d;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.ImageStack;
 import ij.measure.Calibration;
 
 import java.awt.image.IndexColorModel;
 
 import javax.vecmath.Point3d;
+
+import net.imglib2.meta.ImgPlus;
+import net.imglib2.type.numeric.RealType;
 
 /**
  * This class encapsulates an image stack and provides various methods for
@@ -20,7 +22,7 @@ import javax.vecmath.Point3d;
  *
  * @author Benjamin Schmid
  */
-public class Volume {
+public class Volume<T extends RealType<T>> {
 
 	private int[] rLUT = new int[256];
 	private int[] gLUT = new int[256];
@@ -46,10 +48,10 @@ public class Volume {
 	public static final int BYTE_DATA = 1;
 
 	/** The image holding the data */
-	protected ImagePlus imp;
+	protected ImgPlus<T> imp;
 
-	/** Wraping the ImagePlus */
-	protected Img image;
+	/** Wraping the ImgPlus */
+	protected InputImg image;
 
 	/** The loader, initialized depending on the data type */
 	protected Loader loader;
@@ -71,7 +73,7 @@ public class Volume {
 	protected boolean[] channels = new boolean[] {true, true, true};
 
 	/** The dimensions of the data */
-	public int xDim, yDim, zDim;
+	public long yDim, zDim , xDim;
 
 	/** The calibration of the data */
 	public double pw, ph, pd;
@@ -93,7 +95,7 @@ public class Volume {
 	 * All channels are used.
 	 * @param imp
 	 */
-	public Volume(ImagePlus imp) {
+	public Volume(ImgPlus imp) {
 		this(imp, new boolean[] {true, true, true});
 	}
 
@@ -104,14 +106,14 @@ public class Volume {
 	 * the red, blue and green channel should be read. This has only an
 	 * effect when reading color images.
 	 */
-	public Volume(ImagePlus imp, boolean[] ch) {
+	public Volume(ImgPlus imp, boolean[] ch) {
 		setImage(imp, ch);
 	}
 
-	private void setLUTsFromImage(ImagePlus imp) {
+	private void setLUTsFromImage(ImgPlus imp) {
 		switch(imp.getType()) {
-			case ImagePlus.GRAY8:
-			case ImagePlus.COLOR_256:
+			case ImgPlus.GRAY8:
+			case ImgPlus.COLOR_256:
 				IndexColorModel cm = (IndexColorModel)imp.
 					getProcessor().getCurrentColorModel();
 				for(int i = 0; i < 256; i++) {
@@ -121,7 +123,7 @@ public class Volume {
 					aLUT[i] = Math.min(254, (rLUT[i] + gLUT[i] + bLUT[i]) / 3);
 				}
 				break;
-			case ImagePlus.COLOR_RGB:
+			case ImgPlus.COLOR_RGB:
 				for(int i = 0; i < 256; i++) {
 					rLUT[i] = gLUT[i] = bLUT[i] = i;
 					aLUT[i] = Math.min(254, i);
@@ -132,15 +134,15 @@ public class Volume {
 		}
 	}
 
-	public void setImage(ImagePlus imp, boolean[] ch) {
+	public void setImage(ImgPlus imp, boolean[] ch) {
 		this.imp = imp;
 		this.channels = ch;
 		switch(imp.getType()) {
-			case ImagePlus.GRAY8:
-			case ImagePlus.COLOR_256:
+			case ImgPlus.GRAY8:
+			case ImgPlus.COLOR_256:
 				image = new ByteImage(imp);
 				break;
-			case ImagePlus.COLOR_RGB:
+			case ImgPlus.COLOR_RGB:
 				image = new IntImage(imp);
 				break;
 			default:
@@ -148,22 +150,25 @@ public class Volume {
 		}
 		setLUTsFromImage(this.imp);
 
-		xDim = imp.getWidth();
-		yDim = imp.getHeight();
-		zDim = imp.getStackSize();
-		Calibration c = imp.getCalibration();
-		pw = c.pixelWidth;
-		ph = c.pixelHeight;
-		pd = c.pixelDepth;
+		xDim = imp.dimension(0);
+		yDim = imp.dimension(1);
+		zDim = imp.dimension(3);
+
+		//Pixel density, using the averaged scaling
+		pw = imp.averageScale(0);
+		ph = imp.averageScale(1);
+		pd = imp.averageScale(3);
 
 		float xSpace = (float)pw;
 		float ySpace = (float)ph;
 		float zSpace = (float)pd;
 
+
+
 		// real coords
-		minCoord.x = c.xOrigin;
-		minCoord.y = c.yOrigin;
-		minCoord.z = c.zOrigin;
+		minCoord.x = imp.min(0);
+		minCoord.y = imp.min(1);
+		minCoord.z = imp.min(3);
 
 		maxCoord.x = minCoord.x + xDim * xSpace;
 		maxCoord.y = minCoord.y + yDim * ySpace;
@@ -173,7 +178,7 @@ public class Volume {
 		initLoader();
 	}
 
-	public ImagePlus getImagePlus() {
+	public ImgPlus getImgPlus() {
 		return imp;
 	}
 
@@ -465,18 +470,18 @@ public class Volume {
 	/**
 	 * Abstract interface for the input image.
 	 */
-	protected interface Img {
+	protected interface InputImg {
 		public int get(int x, int y, int z);
 		public void get(int x, int y, int z, int[] c);
 		public byte getAverage(int x, int y, int z);
 		public void set(int x, int y, int z, int v);
 	}
 
-	protected final class ByteImage implements Img {
+	protected final class ByteImage implements InputImg {
 		protected byte[][] fData;
 		private int w;
 
-		protected ByteImage(ImagePlus imp) {
+		protected ByteImage(ImgPlus imp) {
 			ImageStack stack = imp.getStack();
 			w = imp.getWidth();
 			int d = imp.getStackSize();
@@ -503,11 +508,11 @@ public class Volume {
 		}
 	}
 
-	protected final class IntImage implements Img {
+	protected final class IntImage implements InputImg {
 		protected int[][] fData;
 		private int w;
 
-		protected IntImage(ImagePlus imp) {
+		protected IntImage(ImgPlus imp) {
 			ImageStack stack = imp.getStack();
 			w = imp.getWidth();
 			int d = imp.getStackSize();
@@ -541,9 +546,9 @@ public class Volume {
 	}
 
 	protected class IntLoader implements Loader {
-		protected Img image;
+		protected InputImg image;
 
-		protected IntLoader(Img imp) {
+		protected IntLoader(InputImg imp) {
 			this.image = imp;
 		}
 
@@ -555,7 +560,7 @@ public class Volume {
 		public int loadWithLUT(int x, int y, int z) {
 			image.get(x, y, z, color);
 			int sum = 0, av = 0, v = 0;
-			
+
 			if(channels[0]) { int r = rLUT[color[0]]; sum++; av += color[0]; v += (r << 16); }
 			if(channels[1]) { int g = gLUT[color[1]]; sum++; av += color[1]; v += (g << 8); }
 			if(channels[2]) { int b = bLUT[color[2]]; sum++; av += color[2]; v += b; }
@@ -575,40 +580,40 @@ public class Volume {
 			}
 		}
 	}
-	
+
 	protected class SaturatedIntLoader extends IntLoader {
-		
-		protected SaturatedIntLoader(Img imp) {
+
+		protected SaturatedIntLoader(InputImg imp) {
 			super(imp);
 		}
-		
+
 		@Override
 		public final int loadWithLUT(int x, int y, int z) {
 			image.get(x, y, z, color);
-			
+
 			int sum = 0, av = 0, r = 0, g = 0, b = 0;
 			if(channels[0]) { r = rLUT[color[0]]; sum++; av += color[0]; }
 			if(channels[1]) { g = gLUT[color[1]]; sum++; av += color[1]; }
 			if(channels[2]) { b = bLUT[color[2]]; sum++; av += color[2]; }
 
 			av /= sum;
-			
+
 			final int maxC = Math.max(r, Math.max(g, b));
 			final float scale = maxC == 0 ? 0 : 255.0f / maxC;
-			
+
 			r = Math.min(255, Math.round(scale * r));
 			g = Math.min(255, Math.round(scale * g));
 			b = Math.min(255, Math.round(scale * b));
-			
+
 			return (aLUT[av] << 24) | (r << 16) | (g << 8) | b;
 		}
 	}
 
 	protected class ByteLoader implements Loader {
-		protected Img image;
+		protected InputImg image;
 		protected int channel;
 
-		protected ByteLoader(Img imp, int channel) {
+		protected ByteLoader(InputImg imp, int channel) {
 			this.image = imp;
 			this.channel = channel;
 		}
@@ -638,7 +643,7 @@ public class Volume {
 
 	protected class AverageByteLoader extends ByteLoader {
 
-		protected AverageByteLoader(Img imp) {
+		protected AverageByteLoader(InputImg imp) {
 			super(imp, 0);
 		}
 

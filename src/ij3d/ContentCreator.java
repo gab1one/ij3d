@@ -1,7 +1,6 @@
 package ij3d;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.ImageStack;
 import ij.io.FileInfo;
 import ij.process.ColorProcessor;
@@ -16,6 +15,7 @@ import java.util.TreeMap;
 
 import javax.vecmath.Color3f;
 
+import net.imglib2.meta.ImgPlus;
 import customnode.CustomMesh;
 import customnode.CustomMeshNode;
 import customnode.CustomMultiMesh;
@@ -26,7 +26,7 @@ public class ContentCreator {
 
 	public static Content createContent(
 				String name,
-				ImagePlus image,
+				ImgPlus image,
 				int type) {
 		int resf = Content.getDefaultResamplingFactor(image, type);
 		return createContent(name, image, type, resf, 0);
@@ -34,7 +34,7 @@ public class ContentCreator {
 
 	public static Content createContent(
 				String name,
-				ImagePlus image,
+				ImgPlus image,
 				int type,
 				int resf) {
 		return createContent(name, image, type, resf, 0);
@@ -42,7 +42,7 @@ public class ContentCreator {
 
 	public static Content createContent(
 				String name,
-				ImagePlus image,
+				ImgPlus image,
 				int type,
 				int resf,
 				int tp) {
@@ -52,7 +52,7 @@ public class ContentCreator {
 
 	public static Content createContent(
 				String name,
-				ImagePlus image,
+				ImgPlus image,
 				int type,
 				int resf,
 				int tp,
@@ -80,7 +80,7 @@ public class ContentCreator {
 
 	public static Content createContent(
 				String name,
-				ImagePlus[] images,
+				ImgPlus[] images,
 				int type,
 				int resf,
 				int tp,
@@ -92,7 +92,7 @@ public class ContentCreator {
 			new TreeMap<Integer, ContentInstant>();
 		boolean timelapse = images.length > 1;
 		boolean shouldSwap = SWAP_TIMELAPSE_DATA && timelapse;
-		for(ImagePlus imp : images) {
+		for(ImgPlus imp : images) {
 			ContentInstant content = new ContentInstant(name);
 			content.image = imp;
 			content.color = color;
@@ -152,38 +152,38 @@ public class ContentCreator {
 	 * @param imp
 	 * @return
 	 */
-	public static ImagePlus[] getImages(ImagePlus imp) {
-		ImagePlus[] ret = new ImagePlus[imp.getNFrames()];
+	public static ImgPlus[] getImages(ImgPlus imp) {
+		ImgPlus[] ret = new ImgPlus[imp.getNFrames()];
 		int i = 0;
-		for(ImagePlus frame : HyperStackIterator.getIterable(imp))
+		for(ImgPlus frame : HyperStackIterator.getIterable(imp))
 			ret[i++] = frame;
 		return ret;
 	}
 
 	/**
 	 * If <code>file</code> is a regular file, it is opened using IJ.openImage(),
-	 * and then given to getImages(ImagePlus);
+	 * and then given to getImages(ImgPlus);
 	 * If <code>file</code> however is a directory, all the files in it are sorted
 	 * alphabetically and then loaded, failing silently if an image
 	 * can not be opened by IJ.openImage().
 	 * @param dir
 	 * @return
 	 */
-	public static ImagePlus[] getImages(File file) {
-		ArrayList<ImagePlus> images = new ArrayList<ImagePlus>();
-		for(ImagePlus frame : FileIterator.getIterable(file))
+	public static ImgPlus[] getImages(File file) {
+		ArrayList<ImgPlus> images = new ArrayList<ImgPlus>();
+		for(ImgPlus frame : FileIterator.getIterable(file))
 			images.add(frame);
-		return images.toArray(new ImagePlus[] {});
+		return images.toArray(new ImgPlus[] {});
 	}
 
-	public static void convert(ImagePlus image) {
+	public static void convert(ImgPlus image) {
 		int imaget = image.getType();
-		if(imaget == ImagePlus.GRAY8 || imaget == ImagePlus.COLOR_256)
+		if(imaget == ImgPlus.GRAY8 || imaget == ImgPlus.COLOR_256)
 			return;
 		int s = image.getStackSize();
 		switch(imaget) {
-			case ImagePlus.GRAY16:
-			case ImagePlus.GRAY32:
+			case ImgPlus.GRAY16:
+			case ImgPlus.GRAY32:
 				if(s == 1)
 					new ImageConverter(image).
 						convertToGray8();
@@ -194,9 +194,9 @@ public class ContentCreator {
 		}
 	}
 
-	private static class FileIterator implements Iterator<ImagePlus>, Iterable<ImagePlus> {
+	private static class FileIterator implements Iterator<ImgPlus>, Iterable<ImgPlus> {
 
-		public static Iterable<ImagePlus> getIterable(File file) {
+		public static Iterable<ImgPlus> getIterable(File file) {
 			if(!file.isDirectory()) {
 				return HyperStackIterator.getIterable(
 					IJ.openImage(file.getAbsolutePath()));
@@ -223,7 +223,7 @@ public class ContentCreator {
 			Arrays.sort(names);
 		}
 
-		public Iterator<ImagePlus> iterator() {
+		public Iterator<ImgPlus> iterator() {
 			return this;
 		}
 
@@ -235,7 +235,7 @@ public class ContentCreator {
 			return nextIndex < names.length;
 		}
 
-		public ImagePlus next() {
+		public ImgPlus next() {
 			if(nextIndex == names.length)
 				return null;
 
@@ -249,13 +249,13 @@ public class ContentCreator {
 		}
 	}
 
-	private static class HyperStackIterator implements Iterator<ImagePlus>, Iterable<ImagePlus> {
+	private static class HyperStackIterator implements Iterator<ImgPlus>, Iterable<ImgPlus> {
 
-		public static Iterable<ImagePlus> getIterable(ImagePlus image) {
+		public static Iterable<ImgPlus> getIterable(ImgPlus image) {
 			return new HyperStackIterator(image);
 		}
 
-		private final ImagePlus image;
+		private final ImgPlus image;
 		private final int nChannels;
 		private final int nSlices;
 		private final int nFrames;
@@ -263,7 +263,7 @@ public class ContentCreator {
 		private final int h;
 		private int nextFrame = 0;
 
-		private HyperStackIterator(ImagePlus image) {
+		private HyperStackIterator(ImgPlus image) {
 			this.image = image;
 			nChannels = image.getNChannels();
 			nSlices = image.getNSlices();
@@ -272,7 +272,7 @@ public class ContentCreator {
 			h = image.getHeight();
 		}
 
-		public Iterator<ImagePlus> iterator() {
+		public Iterator<ImgPlus> iterator() {
 			return this;
 		}
 
@@ -284,7 +284,7 @@ public class ContentCreator {
 			return nextFrame < nFrames;
 		}
 
-		public ImagePlus next() {
+		public ImgPlus next() {
 			if(nextFrame == nFrames)
 				return null;
 
@@ -306,7 +306,7 @@ public class ContentCreator {
 					oldStack.getSliceLabel(index),
 					pixels);
 			}
-			ImagePlus ret = new ImagePlus(oldTitle
+			ImgPlus ret = new ImgPlus(oldTitle
 				+ " (frame " + nextFrame + ")", newStack);
 			ret.setCalibration(image.getCalibration().copy());
 			ret.setFileInfo((FileInfo)fi.clone());

@@ -8,6 +8,7 @@ import ij.measure.Calibration;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import net.imglib2.meta.ImgPlus;
 import math3d.FastMatrixN;
 import math3d.JacobiDouble;
 import math3d.Point3d;
@@ -20,18 +21,18 @@ public class FastMatrix {
 	protected double a00, a01, a02, a03,
 		a10, a11, a12, a13,
 		a20, a21, a22, a23;
-	
+
 	public FastMatrix() { }
-	
+
 	public FastMatrix(double f) { a00 = a11 = a22 = f; }
-	
+
 	public FastMatrix(double[][] m) {
 		if ((m.length != 3 && m.length != 4)
 		    || m[0].length != 4)
 			throw new RuntimeException("Wrong dimensions: "
 						   + m.length + "x"
 						   + m[0].length);
-		
+
 		a00 = (double)m[0][0];
 		a01 = (double)m[0][1];
 		a02 = (double)m[0][2];
@@ -45,7 +46,7 @@ public class FastMatrix {
 		a22 = (double)m[2][2];
 		a23 = (double)m[2][3];
 	}
-	
+
 	public FastMatrix(FastMatrix f) {
 		x = y = z = 0;
 		a00 = f.a00;
@@ -80,66 +81,66 @@ public class FastMatrix {
 	}
 
 	public boolean isJustTranslation() {
-		
+
 		FastMatrix toTest = new FastMatrix(this);
 		toTest.a03 -= a03;
 		toTest.a13 -= a13;
 		toTest.a23 -= a23;
-		
+
 		return toTest.isIdentity();
-		
+
 	}
-	
+
 	public boolean noTranslation() {
-		
+
 		double eps = (double)1e-10;
-		
+
 		return ((double)Math.abs(a03) < eps)
 			&& ((double)Math.abs(a13) < eps)
 			&& ((double)Math.abs(a23) < eps);
-		
+
 	}
-	
+
 	public FastMatrix composeWith(FastMatrix followedBy) {
-		
+
 		// Alias this and followedBy to A and B, with entries a_ij...
-		
+
 		FastMatrix A = this;
 		FastMatrix B = followedBy;
-		
+
 		FastMatrix result = new FastMatrix();
-		
+
 		result.a00 = (A.a00 * B.a00) + (A.a10 * B.a01) + (A.a20 * B.a02);
 		result.a10 = (A.a00 * B.a10) + (A.a10 * B.a11) + (A.a20 * B.a12);
 		result.a20 = (A.a00 * B.a20) + (A.a10 * B.a21) + (A.a20 * B.a22);
-		
+
 		result.a01 = (A.a01 * B.a00) + (A.a11 * B.a01) + (A.a21 * B.a02);
 		result.a11 = (A.a01 * B.a10) + (A.a11 * B.a11) + (A.a21 * B.a12);
 		result.a21 = (A.a01 * B.a20) + (A.a11 * B.a21) + (A.a21 * B.a22);
-		
+
 		result.a02 = (A.a02 * B.a00) + (A.a12 * B.a01) + (A.a22 * B.a02);
 		result.a12 = (A.a02 * B.a10) + (A.a12 * B.a11) + (A.a22 * B.a12);
 		result.a22 = (A.a02 * B.a20) + (A.a12 * B.a21) + (A.a22 * B.a22);
-		
+
 		result.a03 = (A.a03 * B.a00) + (A.a13 * B.a01) + (A.a23 * B.a02) + B.a03;
 		result.a13 = (A.a03 * B.a10) + (A.a13 * B.a11) + (A.a23 * B.a12) + B.a13;
 		result.a23 = (A.a03 * B.a20) + (A.a13 * B.a21) + (A.a23 * B.a22) + B.a23;
-		
+
 		return result;
 	}
-	
+
 	/* This decomposes the transformation into the 3x3 part (the first
 	   FastMatrix in the returned array) and the translation (the
 	   second FastMatrix).  (So, applying these two in the order
 	   returned in the array should be the same as applying the
 	   original.)
-	   
+
 	*/
-	
+
 	public FastMatrix[] decompose() {
-		
+
 		FastMatrix[] result = new FastMatrix[2];
-		
+
 		result[0].a00 = a00;
 		result[0].a01 = a01;
 		result[0].a02 = a02;
@@ -149,17 +150,17 @@ public class FastMatrix {
 		result[0].a20 = a20;
 		result[0].a21 = a21;
 		result[0].a22 = a22;
-		
+
 		result[1].a03 = a03;
 		result[1].a13 = a13;
 		result[1].a23 = a23;
-		
+
 		return result;
-		
+
 	}
-	
+
 	public FastMatrix plus(FastMatrix other) {
-		
+
 		FastMatrix result = new FastMatrix();
 		result.a00 = other.a00 + this.a00;
 		result.a01 = other.a01 + this.a01;
@@ -175,7 +176,7 @@ public class FastMatrix {
 		result.a23 = other.a23 + this.a23;
 		return result;
 	}
-	
+
 	/*
     public FastMatrix(Jama.Matrix m) {
         if ((m.getRowDimension() != 3 && m.getRowDimension() != 4)
@@ -198,41 +199,41 @@ public class FastMatrix {
         a23 = (double)m.get(2,3);
     }
     */
-	
+
 	public void apply(double x, double y, double z) {
 		this.x = x * a00 + y * a01 + z * a02 + a03;
 		this.y = x * a10 + y * a11 + z * a12 + a13;
 		this.z = x * a20 + y * a21 + z * a22 + a23;
 	}
-	
+
 	public void apply(Point3d p) {
 		this.x = (double)(p.x * a00 + p.y * a01 + p.z * a02 + a03);
 		this.y = (double)(p.x * a10 + p.y * a11 + p.z * a12 + a13);
 		this.z = (double)(p.x * a20 + p.y * a21 + p.z * a22 + a23);
 	}
-	
+
 	public void apply(double[] p) {
 		this.x = (double)(p[0] * a00 + p[1] * a01 + p[2] * a02 + a03);
 		this.y = (double)(p[0] * a10 + p[1] * a11 + p[2] * a12 + a13);
 		this.z = (double)(p[0] * a20 + p[1] * a21 + p[2] * a22 + a23);
 	}
-	
+
 	public void applyWithoutTranslation(double x, double y, double z) {
 		this.x = x * a00 + y * a01 + z * a02;
 		this.y = x * a10 + y * a11 + z * a12;
 		this.z = x * a20 + y * a21 + z * a22;
 	}
-	
+
 	public void applyWithoutTranslation(Point3d p) {
 		this.x = (double)(p.x * a00 + p.y * a01 + p.z * a02);
 		this.y = (double)(p.x * a10 + p.y * a11 + p.z * a12);
 		this.z = (double)(p.x * a20 + p.y * a21 + p.z * a22);
 	}
-	
+
 	public Point3d getResult() {
 		return new Point3d(x, y, z);
 	}
-	
+
 	public FastMatrix scale(double x, double y, double z) {
 		FastMatrix result = new FastMatrix();
 		result.a00 = a00 * x;
@@ -249,7 +250,7 @@ public class FastMatrix {
 		result.a23 = a23 * z;
 		return result;
 	}
-	
+
 	public FastMatrix times(FastMatrix o) {
 		FastMatrix result = new FastMatrix();
 		result.a00 = o.a00 * a00 + o.a10 * a01 + o.a20 * a02;
@@ -267,7 +268,7 @@ public class FastMatrix {
 		result.a23 = z;
 		return result;
 	}
-	
+
 	public double det( ) {
 		double sub00 = a11 * a22 - a12 * a21;
 		double sub01 = a10 * a22 - a12 * a20;
@@ -280,7 +281,7 @@ public class FastMatrix {
 		double sub22 = a00 * a11 - a01 * a10;
 		return a00 * sub00 - a01 * sub01 + a02 * sub02;
 	}
-	
+
 	/* this inverts just the first 3 columns, interpreted as 3x3 matrix */
 	private FastMatrix invert3x3() {
 		double sub00 = a11 * a22 - a12 * a21;
@@ -293,7 +294,7 @@ public class FastMatrix {
 		double sub21 = a00 * a12 - a02 * a10;
 		double sub22 = a00 * a11 - a01 * a10;
 		double det = a00 * sub00 - a01 * sub01 + a02 * sub02;
-		
+
 		FastMatrix result = new FastMatrix();
 		result.a00 = sub00 / det;
 		result.a01 = -sub10 / det;
@@ -306,7 +307,7 @@ public class FastMatrix {
 		result.a22 = sub22 / det;
 		return result;
 	}
-	
+
 	public FastMatrix inverse() {
 		FastMatrix result = invert3x3();
 		result.apply(-a03, -a13, -a23);
@@ -315,7 +316,7 @@ public class FastMatrix {
 		result.a23 = result.z;
 		return result;
 	}
-	
+
 	public static FastMatrix rotate(double angle, int axis) {
 		FastMatrix result = new FastMatrix();
 		double c = (double)Math.cos(angle);
@@ -378,7 +379,7 @@ public class FastMatrix {
 
 	// ------------------------------------------------------------------------
 	// FIXME: This probably isn't the best place for these static functions...
-	
+
 	public static double dotProduct(double[] a, double[] b) {
 		double result = 0;
 		if (a.length != b.length)
@@ -391,29 +392,29 @@ public class FastMatrix {
 			result += (a[i] * b[i]);
 		return result;
 	}
-	
+
 	public static double sizeSquared(double[] a) {
 		return dotProduct(a,a);
 	}
-	
+
 	public static double size(double[] a) {
 		return (double)Math.sqrt(dotProduct(a,a));
 	}
-	
+
 	public static double angleBetween(double[] v1, double[] v2) {
 		return (double)Math.acos(dotProduct(v1,v2)/(size(v1)*size(v2)));
 	}
-	
+
 	public static double[] crossProduct(double[] a, double[] b) {
-		
+
 		double[] result = { a[1] * b[2] - a[2] * b[1],
 				    a[2] * b[0] - a[0] * b[2],
 				    a[0] * b[1] - a[1] * b[0] };
-		
+
 		return result;
-		
+
 	}
-	
+
 	public static double[] normalize( double[] a ) {
 		double magnitude = size(a);
 		double[] result = new double[a.length];
@@ -421,35 +422,35 @@ public class FastMatrix {
 			result[i] = a[i]/magnitude;
 		return result;
 	}
-	
+
 	/* Find a first rotation to map v2_domain to v2_template.
 	   Then project the v1s down onto the plane defined by
 	   v2_template, and find the rotation about v2_domain that
 	   lines up the projected V1s. */
-	
+
 	/* FIXME: with the PCA results, then v2 and v1 are always
 	   going to be orthogonal anyway, so in fact the code that
 	   projects onto the plane hasn't been sensibly tested (and is
 	   useless for the moment.). */
-	
+
 	public static FastMatrix rotateToAlignVectors(double[] v2_template,
 						      double[] v1_template,
 						      double[] v2_domain,
 						      double[] v1_domain ) {
-		
+
 		double angleBetween = angleBetween(v2_domain,
 						   v2_template);
-		
+
 		double[] normal = crossProduct(v2_domain,
 					       v2_template);
-		
+
 		double[] normalUnit = normalize(normal);
-		
+
 		FastMatrix rotation = FastMatrix.rotateAround(normalUnit[0],
 							      normalUnit[1],
 							      normalUnit[2],
 							      angleBetween);
-		
+
                 /*
 		  If v2 is the vector with the largest eigenvalue and v1 is
 		  that with the second largest, then the projection of v1
@@ -463,46 +464,46 @@ public class FastMatrix {
 			/ sizeSquared(v2_domain);
 
 		double[] v1_orthogonal_domain = new double[3];
-		
+
 		v1_orthogonal_domain[0] = v1_domain[0] - scale_v2_domain * v2_domain[0];
 		v1_orthogonal_domain[1] = v1_domain[1] - scale_v2_domain * v2_domain[1];
 		v1_orthogonal_domain[2] = v1_domain[2] - scale_v2_domain * v2_domain[2];
-		
+
 		// Now for the template as well:
 
 		double scale_v2_template = dotProduct(v1_template,v2_template)
 			/ sizeSquared(v2_template);
-		
+
 		double [] v1_orthogonal_template = new double[3];
-		
+
 		v1_orthogonal_template[0] = v1_template[0] - scale_v2_template * v2_template[0];
 		v1_orthogonal_template[1] = v1_template[1] - scale_v2_template * v2_template[1];
 		v1_orthogonal_template[2] = v1_template[2] - scale_v2_template * v2_template[2];
-		
+
 		// Now we should rotate the one in the domain by the same
 		// rotation as we applied to the most significant eigenvector...
-		
+
 		rotation.apply(v1_orthogonal_domain[0],
 			       v1_orthogonal_domain[1],
 			       v1_orthogonal_domain[2]);
-		
+
 		double[] v1_orthogonal_domain_rotated = new double[3];
 		v1_orthogonal_domain_rotated[0] = rotation.x;
 		v1_orthogonal_domain_rotated[1] = rotation.y;
 		v1_orthogonal_domain_rotated[2] = rotation.z;
-		
+
 		// Now we need to find the rotation around v2 in the template
 		// that will line up the projected v1s...
-		
+
 		double angleBetweenV1sA = angleBetween(v1_orthogonal_domain_rotated,
 						       v1_orthogonal_template );
-		
+
 		double[] normalToV1sA = crossProduct(v1_orthogonal_domain_rotated,
 						      v1_orthogonal_template );
 
-		
+
 		double[] normalToV1sAUnit = normalize(normalToV1sA);
-		
+
 		FastMatrix secondRotationA = FastMatrix.rotateAround(normalToV1sAUnit[0],
 								     normalToV1sAUnit[1],
 								     normalToV1sAUnit[2],
@@ -511,12 +512,12 @@ public class FastMatrix {
 		return rotation.composeWith(secondRotationA);
 
 	}
-	
+
 	public static FastMatrix rotateAround(double nx, double ny, double nz,
 					      double angle) {
 		FastMatrix r = new FastMatrix();
 		double c = (double)Math.cos(angle), s = (double)Math.sin(angle);
-		
+
 		r.a00 = -(c-1)*nx*nx + c;
 		r.a01 = -(c-1)*nx*ny - s*nz;
 		r.a02 = -(c-1)*nx*nz + s*ny;
@@ -532,7 +533,7 @@ public class FastMatrix {
 
 		return r;
 	}
-	
+
 	/*
 	 * Euler rotation means to rotate around the z axis first, then
 	 * around the rotated x axis, and then around the (twice) rotated
@@ -543,7 +544,7 @@ public class FastMatrix {
 		double c1 = (double)Math.cos(a1), s1 = (double)Math.sin(a1);
 		double c2 = (double)Math.cos(a2), s2 = (double)Math.sin(a2);
 		double c3 = (double)Math.cos(a3), s3 = (double)Math.sin(a3);
-		
+
 		r.a00 = c3*c1-c2*s1*s3;
 		r.a01 = -s3*c1-c2*s1*c3;
 		r.a02 = s2*s1;
@@ -556,7 +557,7 @@ public class FastMatrix {
 		r.a21 = s2*c3;
 		r.a22 = c2;
 		r.a23 = 0;
-		
+
 		return r;
 	}
 
@@ -569,7 +570,7 @@ public class FastMatrix {
 		double c1 = (double)Math.cos(a1), s1 = (double)Math.sin(a1);
 		double c2 = (double)Math.cos(a2), s2 = (double)Math.sin(a2);
 		double c3 = (double)Math.cos(a3), s3 = (double)Math.sin(a3);
-		
+
 		r.a00 = c3*c1-c2*s1*s3;
 		r.a01 = -s3*c1-c2*s1*c3;
 		r.a02 = s2*s1;
@@ -582,15 +583,15 @@ public class FastMatrix {
 		r.a21 = s2*c3;
 		r.a22 = c2;
 		r.a23 = 0;
-		
+
 		r.apply(cx, cy, cz);
 		r.a03 = cx - r.x;
 		r.a13 = cy - r.y;
 		r.a23 = cz - r.z;
-		
+
 		return r;
 	}
-	
+
 	/*
 	 * Calculate the parameters needed to generate this matrix by
 	 * rotateEulerAt()
@@ -602,13 +603,13 @@ public class FastMatrix {
 				+ parameters.length);
 		guessEulerParameters(parameters, null);
 	}
-	
+
 	public void guessEulerParameters(double[] parameters, Point3d center) {
 		if (center != null && parameters.length != 9)
 			throw new IllegalArgumentException(
 				"Need 9 parameters, got "
 				+ parameters.length);
-		
+
 		if (a21 == 0.0 && a20 == 0.0) {
 			/*
 			 * s2 == 0, therefore a2 == 0, therefore a1 and a3
@@ -624,7 +625,7 @@ public class FastMatrix {
 				Math.sqrt(a21 * a21 + a20 * a20), a22);
 			parameters[0] = (double)Math.atan2(a02, -a12);
 		}
-		
+
 		/*
 		 * If a center of rotation was given, the parameters will
 		 * contain:
@@ -642,7 +643,7 @@ public class FastMatrix {
 			parameters[5] = z - (double)center.z;
 			return;
 		}
-		
+
 		/*
 		 * The center (if none was specified) is ambiguous along
 		 * the rotation axis.
@@ -665,7 +666,7 @@ public class FastMatrix {
 			parameters[5] = (double)t.center.z;
 		}
 	}
-	
+
 	public static FastMatrix translate(double x, double y, double z) {
 		FastMatrix result = new FastMatrix();
 		result.a00 = result.a11 = result.a22 = (double)1.0;
@@ -674,7 +675,7 @@ public class FastMatrix {
 		result.a23 = z;
 		return result;
 	}
-	
+
 	/*
 	 * least squares fitting of a linear transformation which maps
 	 * the points x[i] to y[i] as best as possible.
@@ -684,10 +685,10 @@ public class FastMatrix {
 			throw new RuntimeException("different lengths");
 		if (x.length != 4 )
 			throw new RuntimeException("The arrays passed to bestLinear must be of length 4");
-		
+
 		double[][] a = new double[4][4];
 		double[][] b = new double[4][4];
-		
+
 		for (int i = 0; i < a.length; i++) {
 			a[0][0] += (double)(x[i].x * x[i].x);
 			a[0][1] += (double)(x[i].x * x[i].y);
@@ -698,7 +699,7 @@ public class FastMatrix {
 			a[1][3] += (double)(x[i].y);
 			a[2][2] += (double)(x[i].z * x[i].z);
 			a[2][3] += (double)(x[i].z);
-			
+
 			b[0][0] += (double)(x[i].x * y[i].x);
 			b[0][1] += (double)(x[i].y * y[i].x);
 			b[0][2] += (double)(x[i].z * y[i].x);
@@ -712,7 +713,7 @@ public class FastMatrix {
 			b[2][2] += (double)(x[i].z * y[i].z);
 			b[2][3] += (double)(y[i].z);
 		}
-		
+
 		a[1][0] = a[0][1];
 		a[2][0] = a[0][2];
 		a[2][1] = a[1][2];
@@ -722,7 +723,7 @@ public class FastMatrix {
 		a[3][3] = 1;
 		FastMatrixN.invert(a);
 		double[][] r = FastMatrixN.times(b, a);
-		
+
 		FastMatrix result = new FastMatrix();
 		result.a00 = r[0][0];
 		result.a01 = r[0][1];
@@ -860,7 +861,7 @@ public class FastMatrix {
 		result.a23 = c2z - result.z;
 		return result;
 	}
-	
+
 	public static FastMatrix average(FastMatrix[] array) {
 		FastMatrix result = new FastMatrix();
 		int n = 0;
@@ -904,7 +905,7 @@ public class FastMatrix {
 			a20, a21, a22, a23,
 			0, 0, 0, 1};
 	}
-	
+
 	/*
 	 * parses both uniform 4x4 matrices (column by column), and
 	 * 3x4 matrices (row by row).
@@ -921,7 +922,7 @@ public class FastMatrix {
 			 * information (but is always "0 0 0 1").
 			 */
 			boolean is4x4Columns = true;
-			
+
 			matrix.a00 = (double)Double.parseDouble(tokenizer.nextToken());
 			matrix.a10 = (double)Double.parseDouble(tokenizer.nextToken());
 			matrix.a20 = (double)Double.parseDouble(tokenizer.nextToken());
@@ -938,7 +939,7 @@ public class FastMatrix {
 				is4x4Columns = false;
 			if (!is4x4Columns)
 				matrix.a13 = dummy;
-			
+
 			matrix.a02 = (double)Double.parseDouble(tokenizer.nextToken());
 			matrix.a12 = (double)Double.parseDouble(tokenizer.nextToken());
 			matrix.a22 = (double)Double.parseDouble(tokenizer.nextToken());
@@ -947,13 +948,13 @@ public class FastMatrix {
 				is4x4Columns = false;
 			if (!is4x4Columns)
 				matrix.a23 = dummy;
-			
+
 			if (is4x4Columns) {
 				if (!tokenizer.hasMoreTokens())
 					is4x4Columns = false;
 			} else if (tokenizer.hasMoreTokens())
 				throw new RuntimeException("Not a uniform matrix: "+m);
-			
+
 			if (is4x4Columns) {
 				matrix.a03 = (double)Double.parseDouble(tokenizer.nextToken());
 				matrix.a13 = (double)Double.parseDouble(tokenizer.nextToken());
@@ -971,7 +972,7 @@ public class FastMatrix {
 		}
 		return matrix;
 	}
-	
+
 	public static FastMatrix[] parseMatrices(String m) {
 		Vector vector = new Vector();
 		StringTokenizer tokenizer = new StringTokenizer(m, ",");
@@ -987,20 +988,7 @@ public class FastMatrix {
 			result[i] = (FastMatrix)vector.get(i);
 		return result;
 	}
-	
-	public static FastMatrix fromCalibration(ImagePlus image) {
-		Calibration calib = image.getCalibration();
-		FastMatrix result = new FastMatrix();
-		result.a00 = (double)Math.abs(calib.pixelWidth);
-		result.a11 = (double)Math.abs(calib.pixelHeight);
-		result.a22 = (double)Math.abs(calib.pixelDepth);
-		result.a03 = (double)calib.xOrigin;
-		result.a13 = (double)calib.yOrigin;
-		result.a23 = (double)calib.zOrigin;
-		return result;
-	}
-	
-	//
+
 	public static FastMatrix translateToCenter(ImagePlus image) {
 		Calibration calib = image.getCalibration();
 		FastMatrix result = new FastMatrix();
@@ -1012,7 +1000,7 @@ public class FastMatrix {
 		result.a23 = (double)(calib.yOrigin + calib.pixelDepth * image.getStack().getSize() / 2.0);
 		return result;
 	}
-	
+
 	final public boolean isIdentity() {
 		return isIdentity((double)1e-10);
 	}
@@ -1033,7 +1021,7 @@ public class FastMatrix {
 			eps > (double)Math.abs( a23 - other.a23 );
 
 	}
-	
+
 	final public boolean isIdentity(double eps) {
 		return eps > (double)Math.abs(a00 - 1) &&
 			eps > (double)Math.abs(a11 - 1) &&
@@ -1082,27 +1070,27 @@ public class FastMatrix {
 	public String resultToString() {
 		return "" + x + " " + y + " " + z;
 	}
-	
+
 	public String toStringIndented( String indent ) {
 		String result = indent + a00 + ", " + a01 + ", " + a02 + ", " + a03 + "\n";
 		result += indent + a10 + ", " + a11 + ", " + a12 + ", " + a13 + "\n";
 		result += indent + a20 + ", " + a21 + ", " + a22 + ", " + a23 + "\n";
 		return result;
 	}
-	
+
 	public String toString() {
 		return "" + a00 + " " + a01 + " " + a02 + " " + a03 + "   "
 			+ a10 + " " + a11 + " " + a12 + " " + a13 + "   "
 			+ a20 + " " + a21 + " " + a22 + " " + a23 + "   ";
 	}
-	
+
 	public String toStringForAmira() {
 		return "" + a00 + " " + a10 + " " + a20 + " 0 "
 			+ a01 + " " + a11 + " " + a21 + " 0 "
 			+ a02 + " " + a12 + " " + a22 + " 0 "
 			+ a03 + " " + a13 + " " + a23 + " 1";
 	}
-	
+
 	public static void main(String[] args) {
 		FastMatrix ma = rotateFromTo(1, 0, 0, 0, 1, 0);
 		ma.apply(0, 0, 1);

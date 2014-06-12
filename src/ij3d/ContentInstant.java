@@ -1,7 +1,6 @@
 package ij3d;
 
 import ij.IJ;
-import ij.ImagePlus;
 import ij.ImageStack;
 import ij.io.FileInfo;
 import ij.io.OpenDialog;
@@ -29,6 +28,7 @@ import javax.vecmath.Matrix3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
+import net.imglib2.meta.ImgPlus;
 import orthoslice.MultiOrthoGroup;
 import orthoslice.OrthoGroup;
 import surfaceplot.SurfacePlotGroup;
@@ -47,7 +47,7 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 	// attributes
 	private final String name;
 	protected Color3f color = null;
-	protected ImagePlus image;
+	protected ImgPlus image;
 	protected boolean[] channels = new boolean[] {true, true, true};
 	protected int[] rLUT = createDefaultLUT();
 	protected int[] gLUT = createDefaultLUT();
@@ -147,7 +147,7 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 		return lut;
 	}
 
-	public static int getDefaultThreshold(ImagePlus imp, int type) {
+	public static int getDefaultThreshold(ImgPlus imp, int type) {
 		if(type != SURFACE)
 			return 0;
 		ImageStack stack = imp.getStack();
@@ -163,9 +163,9 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 		return imp.getProcessor().getAutoThreshold(h);
 	}
 
-	public static int getDefaultResamplingFactor(ImagePlus imp, int type) {
-		int w = imp.getWidth(), h = imp.getHeight();
-		int d = imp.getStackSize();
+	public static int getDefaultResamplingFactor(ImgPlus image2, int type) {
+		int w = image2.getWidth(), h = image2.getHeight();
+		int d = image2.getStackSize();
 		int max = Math.max(w, Math.max(h, d));
 		switch(type) {
 			case SURFACE: return (int)Math.ceil(max / 128f);
@@ -223,43 +223,6 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 
 	private void setSwitch(int which, boolean on) {
 		((Switch)ordered.getChild(which)).setWhichChild(on ? Switch.CHILD_ALL : Switch.CHILD_NONE);
-	}
-
-	public ImagePlus exportTransformed() {
-		ImagePlus orig = getImage();
-		if(orig == null)
-			throw new RuntimeException("No greyscale image exists for "
-				+ getName());
-
-		Transform3D t1 = new Transform3D();
-		getLocalTranslate().getTransform(t1);
-		Transform3D t2 = new Transform3D();
-		getLocalRotate().getTransform(t2);
-		t1.mul(t2);
-		FastMatrix fc = FastMatrix.fromCalibration(orig);
-		FastMatrix fm = fc.inverse().times(Executer.toFastMatrix(t1).inverse()).
-			times(fc);
-		InterpolatedImage in = new InterpolatedImage(orig);
-		InterpolatedImage out = in.cloneDimensionsOnly();
-		int w = orig.getWidth(), h = orig.getHeight();
-		int d = orig.getStackSize();
-
-		for (int k = 0; k < d; k++) {
-			ImageProcessor ip = out.getImage().getStack().
-						getProcessor(k + 1);
-			for (int j = 0; j < h; j++) {
-				for(int i = 0; i < w; i++) {
-					fm.apply(i, j, k);
-					ip.set(i, j, (int)in.interpol.get(
-							fm.x, fm.y, fm.z));
-				}
-				IJ.showProgress(k + 1, d);
-			}
-		}
-		out.getImage().setTitle(orig.getTitle() + "_transformed");
-		out.getImage().getProcessor().setColorModel(
-			orig.getProcessor().getColorModel());
-		return out.getImage();
 	}
 
 	/* ************************************************************
@@ -341,10 +304,6 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 		setSwitch(CO, b);
 		setSwitch(CS, b & coordVisible);
 // 		whichChild.set(BB, b && bbVisible);
-		// only if hiding, hide the point list
-		if(!b) {
-			showPointList(false);
-		}
 	}
 
 	public void showBoundingBox(boolean b) {
@@ -362,106 +321,6 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 		this.selected = selected;
 		boolean sb = selected && UniverseSettings.showSelectionBox;
 		setSwitch(BS, sb);
-	}
-
-	/* ************************************************************
-	 * point list
-	 *
-	 * ***********************************************************/
-
-	public void setPointListDialog(PointListDialog p) {
-		this.plDialog = p;
-	}
-
-	public void showPointList(boolean b) {
-		if(plShape == null)
-			return;
-
-		setSwitch(PL, b);
-		showPL = b;
-		if(b && plDialog != null)
-			plDialog.addPointList(getName(), plPanel);
-		else if(!b && plDialog != null)
-			plDialog.removePointList(plPanel);
-	}
-
-	public void loadPointList() {
-		PointList points = PointList.load(image);
-		if (points != null)
-			setPointList(points);
-	}
-
-	public void setPointList(PointList points) {
-		this.points = points;
-		plPanel.setPointList(points);
-		plShape.setPointList(points);
-	}
-
-	public void savePointList() {
-		String dir = OpenDialog.getDefaultDirectory();
-		String n = this.getName();
-		if(image != null) {
-			FileInfo fi = image.getFileInfo();
-			dir = fi.directory;
-			n = fi.fileName;
-		}
-		points.save(dir, n);
-	}
-
-	public void savePointList(PrintStream out) throws IOException {
-		points.save(out, false);
-	}
-
-	/**
-	 * @deprecated
-	 * @param p
-	 */
-	@Deprecated
-	public void addPointListPoint(Point3d p) {
-		points.add(p.x, p.y, p.z);
-		if(plDialog != null)
-			plDialog.update();
-	}
-
-	/**
-	 * @deprecated
-	 * @param i
-	 * @param pos
-	 */
-	@Deprecated
-	public void setListPointPos(int i, Point3d pos) {
-		points.placePoint(points.get(i), pos.x, pos.y, pos.z);
-	}
-
-	public float getLandmarkPointSize() {
-		return plShape.getRadius();
-	}
-
-	public void setLandmarkPointSize(float r) {
-		plShape.setRadius(r);
-	}
-
-	public Color3f getLandmarkColor() {
-		return plShape.getColor();
-	}
-
-	public void setLandmarkColor(Color3f color) {
-		plShape.setColor(color);
-	}
-
-	public PointList getPointList() {
-		return points;
-	}
-
-	/**
-	 * @deprecated
-	 * @param i
-	 */
-	@Deprecated
-	public void deletePointListPoint(int i) {
-		points.remove(i);
-		if(plDialog != null)
-			plDialog.update();
 	}
 
 	/* ************************************************************
@@ -506,7 +365,7 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 		Matrix3f m = new Matrix3f();
 		transform.getRotationScale(m);
 		t.setRotationScale(m);
-		// One might thing a rotation matrix has no translational
+		// One might think a rotation matrix has no translational
 		// component, however, if the rotation is composed of
 		// translation - rotation - backtranslation, it has indeed.
 		Vector3d v = new Vector3d();
@@ -586,7 +445,7 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 				.isSaturatedVolumeRendering();
 	}
 
-	public void applySurfaceColors(ImagePlus imp) {
+	public void applySurfaceColors(ImgPlus imp) {
 		if(contentNode == null)
 			return;
 		CustomMesh mesh = null;
@@ -686,7 +545,7 @@ public class ContentInstant extends BranchGroup implements UniverseListener, Con
 		return contentNode;
 	}
 
-	public ImagePlus getImage() {
+	public ImgPlus getImage() {
 		return image;
 	}
 

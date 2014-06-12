@@ -2,6 +2,8 @@ package ij3d;
 
 
 import ij.IJ;
+import ij.ImagePlus;
+import ij.WindowManager;
 import ij.gui.GenericDialog;
 import ij.text.TextWindow;
 import ij3d.gui.InteractiveMeshDecimation;
@@ -229,9 +231,13 @@ public class Executer {
 		final boolean vis2 = os.isVisible(VolumeRenderer.Y_AXIS);
 		final boolean vis3 = os.isVisible(VolumeRenderer.Z_AXIS);
 		ImgPlus imp = c.getImage();
-		int w = imp.getWidth() / c.getResamplingFactor();
-		int h = imp.getHeight() / c.getResamplingFactor();
-		int d = imp.getStackSize() / c.getResamplingFactor();
+
+		// width
+		long w = imp.dimension(0) / c.getResamplingFactor();
+		// height
+		long h = imp.dimension(1) / c.getResamplingFactor();
+		// length
+		long d = imp.dimension(3) / c.getResamplingFactor();
 
 		gd.addCheckbox("Show_yz plane", vis1);
 		gd.addSlider("x coordinate", 0, w-1, ind1);
@@ -508,29 +514,6 @@ public class Executer {
 		showColorDialog("Adjust background color ...", oldC, colorListener, false, false);
 	}
 
-	public void changePointColor(final Content c) {
-		if(!checkSel(c))
-			return;
-		final ContentInstant ci = c.getCurrent();
-		final Color3f oldC = ci.getLandmarkColor();
-		final ColorListener colorListener = new ColorListener() {
-			@Override
-			public void colorChanged(Color3f color) {
-				ci.setLandmarkColor(color);
-				univ.fireContentChanged(c);
-			}
-
-			@Override
-			public void ok(final GenericDialog gd) {
-				// gd.wasOKed: apply to all time points
-				if (gd.getNextBoolean())
-					c.setLandmarkColor(ci.getLandmarkColor());
-				univ.fireContentChanged(c);
-			}
-		};
-		showColorDialog("Change point color...", oldC, colorListener, false, true);
-	}
-
 	public void adjustLUTs(final Content c) {
 		if(!checkSel(c))
 			return;
@@ -789,13 +772,13 @@ public class Executer {
 		gd.showDialog();
 		if(gd.wasCanceled())
 			return;
-		
 
-		ImgPlus colorImage = WindowManager.getImage(gd.getNextChoice());
-		if(gd.getNextBoolean())
-			c.applySurfaceColors(colorImage);
-		else if(c.getCurrent() != null)
-			c.getCurrent().applySurfaceColors(colorImage);
+
+//		ImgPlus colorImage = WindowManager.getImage(gd.getNextChoice());
+//		if(gd.getNextBoolean())
+//			c.applySurfaceColors(colorImage);
+//		else if(c.getCurrent() != null)
+//			c.getCurrent().applySurfaceColors(colorImage);
 	}
 
 	/* ----------------------------------------------------------
@@ -826,68 +809,6 @@ public class Executer {
 			((Content)it.next()).showCoordinateSystem(b);
 	}
 
-
-	/* ----------------------------------------------------------
-	 * Point list submenu
-	 * --------------------------------------------------------*/
-	public void loadPointList(Content c) {
-		if(!checkSel(c))
-			return;
-		c.loadPointList();
-	}
-
-	public void savePointList(Content c) {
-		if(!checkSel(c))
-			return;
-		c.savePointList();
-	}
-
-	public void changePointSize(final Content c) {
-		if(!checkSel(c))
-			return;
-		final GenericDialog gd =
-			new GenericDialog("Point size", univ.getWindow());
-		final float oldS = (c.getLandmarkPointSize());
-		final float minS = oldS / 10f;
-		final float maxS = oldS * 10f;
-		gd.addSlider("Size", minS, maxS, oldS);
-		final TextField textField = (TextField)gd.getNumericFields().get(0);
-		textField.addTextListener(new TextListener() {
-			@Override
-			public void textValueChanged(TextEvent e2) {
-				try {
-					c.setLandmarkPointSize(Float.parseFloat(textField.getText()));
-				} catch (NumberFormatException e) {
-					// ignore
-				}
-			}
-		});
-		((Scrollbar)gd.getSliders().get(0)).
-			addAdjustmentListener(new AdjustmentListener() {
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				float newS = Float.parseFloat(textField.getText());
-				c.setLandmarkPointSize(newS);
-			}
-		});
-		gd.setModal(false);
-		gd.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				if(gd.wasCanceled()) {
-					c.setLandmarkPointSize(oldS);
-					return;
-				}
-			}
-		});
-		gd.showDialog();
-	}
-
-	public void showPointList(Content c, boolean b) {
-		if(!checkSel(c))
-			return;
-		c.showPointList(b);
-	}
 
 	public void register() {
 		// Select the contents used for registration
@@ -1061,38 +982,7 @@ public class Executer {
 		};
 	}
 
-	public void saveTransform(Content c) {
-		if(!checkSel(c))
-			return;
-		Transform3D t1 = new Transform3D();
-		c.getLocalTranslate().getTransform(t1);
-		Transform3D t2 = new Transform3D();
-		c.getLocalRotate().getTransform(t2);
-		t1.mul(t2);
-		float[] matrix = new float[16];
-		t1.get(matrix);
-	}
 
-	public void exportTransformed(final Content c) {
-		if(!checkSel(c))
-			return;
-		new Thread() {
-			{ setPriority(Thread.NORM_PRIORITY); }
-			@Override
-			public void run() {
-				exportTr(c);
-			}
-		}.start();
-	}
-
-	private void exportTr(Content c) {
-		try {
-			c.exportTransformed().show();
-		} catch(Exception e) {
-			e.printStackTrace();
-			IJ.error(e.getMessage());
-		}
-	}
 
 	/* **********************************************************
 	 * Add menu
@@ -1360,10 +1250,13 @@ public class Executer {
 	}
 
 	private static final int getAutoThreshold(ImgPlus imp) {
+
+		ImagePlus plus = new ImagePlus();
 		int[] histo = new int[256];
-		int d = imp.getStackSize();
+		long d = imp.dimension(3);
 		for(int z = 0; z < d; z++) {
-			byte[] p = (byte[])imp.getStack().getPixels(z+1);
+//			byte[] p = (byte[])imp.getStack().getPixels(z+1);
+			byte[] p = (byte[])plus.getStack().getPixels(z+1);
 			for(int i = 0; i < p.length; i++) {
 				histo[(p[i]&0xff)]++;
 			}
